@@ -216,55 +216,183 @@
         }
         /* Responsive table styles */
         @media screen and (max-width: 768px) {
+            body {
+                margin: 20px;
+            }
+
+            #createdNumber {
+                margin: 10px 5px;
+            }
+
             #log {
-                margin: 20px 10px;
-                padding: 10px;
-            }
-
-            table {
-                display: block;
-                width: 100%;
-            }
-
-            /* Hide table headers on mobile */
-            thead {
-                display: none;
-            }
-
-            tbody tr {
-                display: block;
-                margin-bottom: 15px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
                 padding: 8px;
             }
 
-            tbody td {
+            #log table {
+                font-size: 14px;
+            }
+
+            #log tr {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+                margin-bottom: 10px;
+                padding: 8px;
+                background: #f8f9fa;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            #log td {
                 display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 8px;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 4px;
                 border: none;
-                border-bottom: 1px solid #eee;
+                text-align: left;
             }
 
-            tbody td:last-child {
-                border-bottom: none;
-            }
-
-            /* Add labels for each cell */
-            tbody td:before {
+            #log td:before {
                 content: attr(data-label);
-                font-weight: bold;
-                margin-right: 10px;
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 2px;
             }
 
-            /* Adjust total sum display */
+            /* Specific cell styling */
+            #log td[data-label="Ngày"] {
+                color: #007bff;
+                font-weight: bold;
+            }
+
+            #log td[data-label="Số tiền"] {
+                color: #28a745;
+                font-weight: bold;
+            }
+
+            #log td[data-label="Người chơi"] {
+                font-weight: bold;
+            }
+
+            /* Total sum styling */
             .total-sum {
-                text-align: center;
+                display: grid;
+                gap: 8px;
+                text-align: left;
                 padding: 10px;
                 margin-top: 15px;
                 border-top: 2px solid #ddd;
+                font-size: 16px;
+            }
+
+            /* Hide table headers on mobile */
+            #log thead {
+                display: none;
+            }
+
+            /* Adjust the created numbers table */
+            #createdNumbers {
+                margin: 20px 5px;
+            }
+        }
+        #monthlyChart {
+            margin-top: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .month-bar {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .month-bar-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .month-bar-label .month-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #495057;
+        }
+        .month-bar-label .month-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .month-bar-progress {
+            height: 24px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .month-bar-fill {
+            height: 100%;
+            background: linear-gradient(to right, #007bff, #28a745);
+            transition: width 0.3s ease;
+        }
+        .month-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #dee2e6;
+        }
+        .month-detail-item {
+            text-align: center;
+        }
+        .month-detail-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #007bff;
+            display: block;
+        }
+        .month-detail-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        .money-amount {
+            font-size: 16px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .turn-number {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .day-number {
+            color: #6c757d;
+        }
+        .date-cell {
+            font-weight: bold;
+            color: #495057;
+        }
+        .user-cell {
+            font-weight: bold;
+        }
+        .user-ong {
+            color: #e83e8c;
+        }
+        .user-ba {
+            color: #007bff;
+        }
+
+        /* Adjust mobile styles */
+        @media screen and (max-width: 768px) {
+            #log td[data-label="Số tiền"] {
+                color: inherit;
+            }
+            #log td[data-label="Số tiền"] .money-amount {
+                display: block;
+                margin-top: 4px;
             }
         }
     </style>
@@ -297,9 +425,13 @@
 
 
     <div id="numberGrid">
-        <h3>Bảng số</h3>
         <button id="toggleBadges" class="toggle-button active">Ẩn người góp công</button>
         <div class="grid-table" id="numberGridContainer"></div>
+    </div>
+
+    <div id="monthlyChart">
+        <h3>Thống kê theo tháng</h3>
+        <div id="monthlyChartContent"></div>
     </div>
 
     <div id="log">
@@ -433,10 +565,12 @@
             updateLog();
             updateCreatedNumbers();
             updateNumberGrid();
+            updateMonthlyChart();
             checkButtonAvailability();
         }
         
         function updateLog() {
+            logEntries.sort((a, b) => b.turnCount - a.turnCount);
             let logEntriesBody = document.getElementById("logEntriesBody");
             logEntriesBody.innerHTML = "";
             
@@ -446,11 +580,19 @@
             logEntries.forEach(entry => {
                 let row = document.createElement("tr");
                 row.innerHTML = `
-                    <td data-label="Ngày"><strong>${entry.date}</strong></td>
-                    <td data-label="Số tiền">${entry.number}.000 đ</td>
-                    <td data-label="Ngày (Từ đầu năm)">${entry.dayCount}</td>
-                    <td data-label="Số lượt">${entry.turnCount}</td>
-                    <td data-label="Người chơi">${entry.user}</td>
+                    <td data-label="Ngày" class="date-cell">${entry.date}</td>
+                    <td data-label="Số tiền">
+                        <span class="money-amount">${formatNumber(entry.number)}.000 đ</span>
+                    </td>
+                    <td data-label="Ngày (Từ đầu năm)">
+                        <span class="day-number">Ngày ${entry.dayCount}</span>
+                    </td>
+                    <td data-label="Số lượt">
+                        <span class="turn-number">${entry.turnCount}</span>
+                    </td>
+                    <td data-label="Người góp" class="user-cell ${entry.user === "Ông" ? 'user-ong' : 'user-ba'}">
+                        ${entry.user}
+                    </td>
                 `;
                 logEntriesBody.appendChild(row);
                 
@@ -462,9 +604,12 @@
             });
             
             document.getElementById("totalSum").innerHTML = `
-                <div>Ông (Ô): ${anhSum}.000 đ</div>
-                <div>Bà (B): ${emSum}.000 đ</div>
-                <div style="margin-top: 8px;">Tổng số: ${totalSum}.000 đ</div>
+                <div><strong class="user-ong">Ông (Ô):</strong> <span class="money-amount">${formatNumber(anhSum)}.000 đ</span></div>
+                <div><strong class="user-ba">Bà (B):</strong> <span class="money-amount">${formatNumber(emSum)}.000 đ</span></div>
+                <div style="margin-top: 8px; font-size: 18px;">
+                    <strong>Tổng số:</strong> 
+                    <span class="money-amount" style="font-size: 18px;">${formatNumber(totalSum)}.000 đ</span>
+                </div>
             `;
         }
         
@@ -475,8 +620,10 @@
             createdNumbers.forEach(entry => {
                 let row = document.createElement("tr");
                 row.innerHTML = `
-                    <td data-label="Ngày"><strong>${entry.date}</strong></td>
-                    <td data-label="Số tiền">${entry.number}.000 đ</td>
+                    <td data-label="Ngày" class="date-cell">${entry.date}</td>
+                    <td data-label="Số tiền">
+                        <span class="money-amount">${formatNumber(entry.number)}.000 đ</span>
+                    </td>
                 `;
                 createdNumbersBody.appendChild(row);
             });
@@ -585,12 +732,84 @@
             updateNumberGrid();
         }
         
+        function formatNumber(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        function updateMonthlyChart() {
+            const monthlyData = new Map();
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 
+                              'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            
+            // Initialize monthly data
+            logEntries.forEach(entry => {
+                const date = new Date(entry.date);
+                const monthKey = date.getMonth();
+                
+                if (!monthlyData.has(monthKey)) {
+                    monthlyData.set(monthKey, {
+                        total: 0,
+                        ong: 0,
+                        ba: 0,
+                        count: 0
+                    });
+                }
+                
+                const monthData = monthlyData.get(monthKey);
+                monthData.total += entry.number;
+                monthData.count += 1;
+                if (entry.user === "Ông") {
+                    monthData.ong += entry.number;
+                } else {
+                    monthData.ba += entry.number;
+                }
+            });
+
+            // Find max value for scaling
+            const maxTotal = Math.max(...Array.from(monthlyData.values()).map(d => d.total));
+            
+            // Generate chart HTML
+            const chartContent = document.getElementById('monthlyChartContent');
+            chartContent.innerHTML = '';
+            
+            monthlyData.forEach((data, month) => {
+                const percentage = (data.total / maxTotal) * 100;
+                const monthDiv = document.createElement('div');
+                monthDiv.className = 'month-bar';
+                monthDiv.innerHTML = `
+                    <div class="month-bar-label">
+                        <span class="month-name">${monthNames[month]}</span>
+                        <span class="month-total">${formatNumber(data.total)}.000 đ</span>
+                    </div>
+                    <div class="month-bar-progress">
+                        <div class="month-bar-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="month-details">
+                        <div class="month-detail-item">
+                            <span class="month-detail-value">${formatNumber(data.ong)}.000 đ</span>
+                            <span class="month-detail-label">Ông</span>
+                        </div>
+                        <div class="month-detail-item">
+                            <span class="month-detail-value">${data.count}</span>
+                            <span class="month-detail-label">Lượt</span>
+                        </div>
+                        <div class="month-detail-item">
+                            <span class="month-detail-value">${formatNumber(data.ba)}.000 đ</span>
+                            <span class="month-detail-label">Bà</span>
+                        </div>
+                    </div>
+                `;
+                chartContent.appendChild(monthDiv);
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             checkButtonAvailability();
             logEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
             updateLog();
             updateCreatedNumbers();
             createNumberGrid();
+            updateMonthlyChart();
             
             document.getElementById('toggleBadges').addEventListener('click', toggleBadges);
         });
