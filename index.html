@@ -75,7 +75,7 @@
         .grid-table {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-            gap: 4px;
+            gap: 2px;
             padding: 10px;
         }
         .grid-cell {
@@ -84,7 +84,13 @@
             border: 1px solid #ddd;
             font-size: 12px;
             border-radius: 4px;
-            background-color: white; /* Default white background */
+            background-color: white;
+            position: relative;
+            min-height: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         .grid-cell.level-1 {
             background-color: #28a745; /* Green - Best */
@@ -111,10 +117,170 @@
             color: white;
             font-weight: bold;
         }
+        #logEntriesBody tr:nth-child(odd) {
+            background-color: #f2f2f2;
+        }
+        #logEntriesBody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+        .user-select {
+            margin: 20px 0;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .user-ratio {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .ratio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .ratio-option input[type="radio"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+        .ratio-option label {
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .xe-cam {
+            color: #fd7e14;
+            font-weight: bold;
+        }
+        .xe-hong {
+            color: #e83e8c;
+            font-weight: bold;
+        }
+        .number-badge {
+            position: absolute;
+            top: 2px;
+            width: 12px;
+            height: 12px;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 50%;
+            color: white;
+        }
+        .number-badge.anh {
+            background-color: #e83e8c; /* Pink for Ông/Ô */
+            right: 2px;
+        }
+        .number-badge.em {
+            background-color: #007bff; /* Blue for Bà/B */
+            left: 2px;
+        }
+        .toggle-button {
+            margin: 10px;
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .toggle-button:hover {
+            background-color: #5a6268;
+        }
+        .toggle-button.active {
+            background-color: #28a745;
+        }
+        .number-badge.hidden {
+            display: none;
+        }
+        .grid-cell.anh-color {
+            background-color: rgba(232, 62, 140, 0.2); /* Light pink for Anh/Ô */
+        }
+        .grid-cell.em-color {
+            background-color: rgba(0, 123, 255, 0.2); /* Light blue for Em/B */
+        }
+        .grid-cell.both-color {
+            background: linear-gradient(
+                45deg, 
+                rgba(232, 62, 140, 0.2) 0%, 
+                rgba(232, 62, 140, 0.2) 50%, 
+                rgba(0, 123, 255, 0.2) 50%, 
+                rgba(0, 123, 255, 0.2) 100%
+            );
+        }
+        /* Responsive table styles */
+        @media screen and (max-width: 768px) {
+            #log {
+                margin: 20px 10px;
+                padding: 10px;
+            }
+
+            table {
+                display: block;
+                width: 100%;
+            }
+
+            /* Hide table headers on mobile */
+            thead {
+                display: none;
+            }
+
+            tbody tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 8px;
+            }
+
+            tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px;
+                border: none;
+                border-bottom: 1px solid #eee;
+            }
+
+            tbody td:last-child {
+                border-bottom: none;
+            }
+
+            /* Add labels for each cell */
+            tbody td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                margin-right: 10px;
+            }
+
+            /* Adjust total sum display */
+            .total-sum {
+                text-align: center;
+                padding: 10px;
+                margin-top: 15px;
+                border-top: 2px solid #ddd;
+            }
+        }
     </style>
 </head>
 <body>
     <h1>Tiền dưỡng già năm 2025</h1>
+    <div class="user-ratio">
+        <div class="ratio-option">
+            <input type="radio" id="anh" name="userSelect" value="Ông" checked>
+            <label for="anh" class="xe-cam">Ông</label>
+        </div>
+        <div class="ratio-option">
+            <input type="radio" id="em" name="userSelect" value="Bà">
+            <label for="em" class="xe-hong">Bà</label>
+        </div>
+    </div>
     <button id="generateButton" onclick="generateRandomNumbers()">Tạo số</button>
     <div id="createdNumbers">
         <h3>Số tiền bạn nhét heo hôm nay</h3>
@@ -129,6 +295,13 @@
         </table>
     </div>
 
+
+    <div id="numberGrid">
+        <h3>Bảng số</h3>
+        <button id="toggleBadges" class="toggle-button active">Ẩn người góp công</button>
+        <div class="grid-table" id="numberGridContainer"></div>
+    </div>
+
     <div id="log">
         <h3>Nhật ký</h3>
         <table>
@@ -138,6 +311,7 @@
                     <th>Số tiền</th>
                     <th>Ngày (Từ đầu năm)</th>
                     <th>Số lượt</th>
+                    <th>Người chơi</th>
                 </tr>
             </thead>
             <tbody id="logEntriesBody"></tbody>
@@ -147,10 +321,6 @@
 
     
 
-    <div id="numberGrid">
-        <h3>Bảng số</h3>
-        <div class="grid-table" id="numberGridContainer"></div>
-    </div>
 
     <script>
         let startDate = new Date("2025-01-01");
@@ -161,52 +331,52 @@
         }
         
         let preGeneratedNumbers = [
-            { date: "2025-02-12", dayCount: 43, number: 86, turnCount: 1 },
-            { date: "2025-02-12", dayCount: 43, number: 360, turnCount: 2 },
-            { date: "2025-02-13", dayCount: 44, number: 348, turnCount: 3 },
-            { date: "2025-02-13", dayCount: 44, number: 3, turnCount: 4 },
-            { date: "2025-02-14", dayCount: 45, number: 85, turnCount: 5 },
-            { date: "2025-02-14", dayCount: 45, number: 226, turnCount: 6 },
-            { date: "2025-02-15", dayCount: 46, number: 87, turnCount: 7 },
-            { date: "2025-02-15", dayCount: 46, number: 320, turnCount: 8 },
-            { date: "2025-02-16", dayCount: 47, number: 102, turnCount: 9 },
-            { date: "2025-02-16", dayCount: 47, number: 107, turnCount: 10 },
-            { date: "2025-02-17", dayCount: 48, number: 327, turnCount: 11 },
-            { date: "2025-02-17", dayCount: 48, number: 125, turnCount: 12 },
-            { date: "2025-02-18", dayCount: 49, number: 1, turnCount: 13 },
-            { date: "2025-02-18", dayCount: 49, number: 188, turnCount: 14 },
-            { date: "2025-02-19", dayCount: 50, number: 21, turnCount: 15 },
-            { date: "2025-02-19", dayCount: 50, number: 104, turnCount: 16 },
-            { date: "2025-02-20", dayCount: 51, number: 47, turnCount: 17 },
-            { date: "2025-02-20", dayCount: 51, number: 45, turnCount: 18 },
-            { date: "2025-02-21", dayCount: 52, number: 186, turnCount: 19 },
-            { date: "2025-02-21", dayCount: 52, number: 284, turnCount: 20 },
-            { date: "2025-02-22", dayCount: 53, number: 95, turnCount: 21 },
-            { date: "2025-02-22", dayCount: 53, number: 62, turnCount: 22 },
-            { date: "2025-02-23", dayCount: 54, number: 40, turnCount: 23 },
-            { date: "2025-02-23", dayCount: 54, number: 343, turnCount: 24 },
-            { date: "2025-02-24", dayCount: 55, number: 67, turnCount: 25 },
-            { date: "2025-02-24", dayCount: 55, number: 209, turnCount: 26 },
-            { date: "2025-02-25", dayCount: 56, number: 116, turnCount: 27 },
-            { date: "2025-02-25", dayCount: 56, number: 30, turnCount: 28 },
-            { date: "2025-02-26", dayCount: 57, number: 43, turnCount: 29 },
-            { date: "2025-02-26", dayCount: 57, number: 186, turnCount: 30 },
-            { date: "2025-02-27", dayCount: 58, number: 158, turnCount: 31 },
-            { date: "2025-02-27", dayCount: 58, number: 117, turnCount: 32 },
-            { date: "2025-02-28", dayCount: 59, number: 141, turnCount: 33 },
-            { date: "2025-02-28", dayCount: 59, number: 212, turnCount: 34 },
-            { date: "2025-03-01", dayCount: 60, number: 192, turnCount: 35 },
-            { date: "2025-03-01", dayCount: 60, number: 148, turnCount: 36 },
-            { date: "2025-03-02", dayCount: 61, number: 237, turnCount: 37 },
-            { date: "2025-03-02", dayCount: 61, number: 252, turnCount: 38 },
-            { date: "2025-03-03", dayCount: 62, number: 21, turnCount: 39 },
-            { date: "2025-03-03", dayCount: 62, number: 2, turnCount: 40 },
-            { date: "2025-03-04", dayCount: 63, number: 51, turnCount: 41 },
-            { date: "2025-03-04", dayCount: 63, number: 288, turnCount: 42 },
-            { date: "2025-03-05", dayCount: 64, number: 161, turnCount: 43 },
-            { date: "2025-03-05", dayCount: 64, number: 65, turnCount: 44 },
-            { date: "2025-03-06", dayCount: 65, number: 191, turnCount: 45 },
-            { date: "2025-03-06", dayCount: 65, number: 142, turnCount: 46 }
+            { date: "2025-02-12", dayCount: 43, number: 86, turnCount: 1, user: "Bà" },
+            { date: "2025-02-12", dayCount: 43, number: 360, turnCount: 2, user: "Ông" },
+            { date: "2025-02-13", dayCount: 44, number: 348, turnCount: 3, user: "Bà" },
+            { date: "2025-02-13", dayCount: 44, number: 13, turnCount: 4, user: "Ông" },
+            { date: "2025-02-14", dayCount: 45, number: 85, turnCount: 5, user: "Bà" },
+            { date: "2025-02-14", dayCount: 45, number: 226, turnCount: 6, user: "Ông" },
+            { date: "2025-02-15", dayCount: 46, number: 87, turnCount: 7, user: "Bà" },
+            { date: "2025-02-15", dayCount: 46, number: 320, turnCount: 8, user: "Ông" },
+            { date: "2025-02-16", dayCount: 47, number: 102, turnCount: 9, user: "Bà" },
+            { date: "2025-02-16", dayCount: 47, number: 107, turnCount: 10, user: "Ông" },
+            { date: "2025-02-17", dayCount: 48, number: 327, turnCount: 11, user: "Bà" },
+            { date: "2025-02-17", dayCount: 48, number: 125, turnCount: 12, user: "Ông" },
+            { date: "2025-02-18", dayCount: 49, number: 1, turnCount: 13, user: "Bà" },
+            { date: "2025-02-18", dayCount: 49, number: 188, turnCount: 14, user: "Ông" },
+            { date: "2025-02-19", dayCount: 50, number: 21, turnCount: 15, user: "Bà" },
+            { date: "2025-02-19", dayCount: 50, number: 104, turnCount: 16, user: "Ông" },
+            { date: "2025-02-20", dayCount: 51, number: 47, turnCount: 17, user: "Bà" },
+            { date: "2025-02-20", dayCount: 51, number: 45, turnCount: 18, user: "Ông" },
+            { date: "2025-02-21", dayCount: 52, number: 186, turnCount: 19, user: "Bà" },
+            { date: "2025-02-21", dayCount: 52, number: 284, turnCount: 20, user: "Ông" },
+            { date: "2025-02-22", dayCount: 53, number: 95, turnCount: 21, user: "Bà" },
+            { date: "2025-02-22", dayCount: 53, number: 62, turnCount: 22, user: "Ông" },
+            { date: "2025-02-23", dayCount: 54, number: 40, turnCount: 23, user: "Bà" },
+            { date: "2025-02-23", dayCount: 54, number: 343, turnCount: 24, user: "Ông" },
+            { date: "2025-02-24", dayCount: 55, number: 67, turnCount: 25, user: "Bà" },
+            { date: "2025-02-24", dayCount: 55, number: 209, turnCount: 26, user: "Ông" },
+            { date: "2025-02-25", dayCount: 56, number: 116, turnCount: 27, user: "Bà" },
+            { date: "2025-02-25", dayCount: 56, number: 30, turnCount: 28, user: "Ông" },
+            { date: "2025-02-26", dayCount: 57, number: 43, turnCount: 29, user: "Bà" },
+            { date: "2025-02-26", dayCount: 57, number: 186, turnCount: 30, user: "Ông" },
+            { date: "2025-02-27", dayCount: 58, number: 158, turnCount: 31, user: "Bà" },
+            { date: "2025-02-27", dayCount: 58, number: 117, turnCount: 32, user: "Ông" },
+            { date: "2025-02-28", dayCount: 59, number: 141, turnCount: 33, user: "Bà" },
+            { date: "2025-02-28", dayCount: 59, number: 212, turnCount: 34, user: "Ông" },
+            { date: "2025-03-01", dayCount: 60, number: 198, turnCount: 35, user: "Bà" },
+            { date: "2025-03-01", dayCount: 60, number: 148, turnCount: 36, user: "Ông" },
+            { date: "2025-03-02", dayCount: 61, number: 237, turnCount: 37, user: "Bà" },
+            { date: "2025-03-02", dayCount: 61, number: 252, turnCount: 38, user: "Ông" },
+            { date: "2025-03-03", dayCount: 62, number: 21, turnCount: 39, user: "Bà" },
+            { date: "2025-03-03", dayCount: 62, number: 170, turnCount: 40, user: "Ông" },
+            { date: "2025-03-04", dayCount: 63, number: 51, turnCount: 41, user: "Bà" },
+            { date: "2025-03-04", dayCount: 63, number: 288, turnCount: 42, user: "Ông" },
+            { date: "2025-03-05", dayCount: 64, number: 161, turnCount: 43, user: "Bà" },
+            { date: "2025-03-05", dayCount: 64, number: 65, turnCount: 44, user: "Ông" },
+            { date: "2025-03-06", dayCount: 65, number: 191, turnCount: 45, user: "Bà" },
+            { date: "2025-03-06", dayCount: 65, number: 142 , turnCount: 46, user: "Ông" }
         ];
         
         let logEntries = [...preGeneratedNumbers];
@@ -232,6 +402,7 @@
         }
 
         function generateRandomNumbers() {
+            let selectedUser = document.querySelector('input[name="userSelect"]:checked').value;
             let today = new Date().toISOString().split('T')[0];
             let todayDate = new Date(today);
             let dayCount = Math.floor((todayDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
@@ -252,7 +423,8 @@
                 date: today, 
                 number: newNumber, 
                 dayCount, 
-                turnCount: globalTurnCount
+                turnCount: globalTurnCount,
+                user: selectedUser
             };
             
             logEntries.unshift(newEntry);
@@ -268,16 +440,32 @@
             let logEntriesBody = document.getElementById("logEntriesBody");
             logEntriesBody.innerHTML = "";
             
+            let anhSum = 0;
+            let emSum = 0;
+            
             logEntries.forEach(entry => {
                 let row = document.createElement("tr");
-                row.innerHTML = `<td><strong>${entry.date}</strong></td>
-                                 <td>${entry.number}.000 đ</td>
-                                 <td>${entry.dayCount}</td>
-                                 <td>${entry.turnCount}</td>`;
+                row.innerHTML = `
+                    <td data-label="Ngày"><strong>${entry.date}</strong></td>
+                    <td data-label="Số tiền">${entry.number}.000 đ</td>
+                    <td data-label="Ngày (Từ đầu năm)">${entry.dayCount}</td>
+                    <td data-label="Số lượt">${entry.turnCount}</td>
+                    <td data-label="Người chơi">${entry.user}</td>
+                `;
                 logEntriesBody.appendChild(row);
+                
+                if (entry.user === "Ông") {
+                    anhSum += entry.number;
+                } else {
+                    emSum += entry.number;
+                }
             });
             
-            document.getElementById("totalSum").innerText = `Tổng số: ${totalSum}.000 đ`;
+            document.getElementById("totalSum").innerHTML = `
+                <div>Ông (Ô): ${anhSum}.000 đ</div>
+                <div>Bà (B): ${emSum}.000 đ</div>
+                <div style="margin-top: 8px;">Tổng số: ${totalSum}.000 đ</div>
+            `;
         }
         
         function updateCreatedNumbers() {
@@ -286,8 +474,10 @@
             
             createdNumbers.forEach(entry => {
                 let row = document.createElement("tr");
-                row.innerHTML = `<td><strong>${entry.date}</strong></td>
-                                 <td>${entry.number}.000 đ</td>`;
+                row.innerHTML = `
+                    <td data-label="Ngày"><strong>${entry.date}</strong></td>
+                    <td data-label="Số tiền">${entry.number}.000 đ</td>
+                `;
                 createdNumbersBody.appendChild(row);
             });
         }
@@ -300,24 +490,82 @@
             return 5;
         }
 
+        let showBadges = true;
+
+        function toggleBadges() {
+            showBadges = !showBadges;
+            const button = document.getElementById('toggleBadges');
+            
+            if (showBadges) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+            
+            updateNumberGrid(); // Update the entire grid to switch color schemes
+        }
+
         function updateNumberGrid() {
-            // Get all used numbers and their counts from logEntries
-            const usedNumbers = new Map();
+            const anhCounts = new Map();
+            const emCounts = new Map();
+            
             logEntries.forEach(entry => {
-                usedNumbers.set(entry.number, true);
+                if (entry.user === "Ông") {
+                    const count = anhCounts.get(entry.number) || 0;
+                    anhCounts.set(entry.number, count + 1);
+                } else {
+                    const count = emCounts.get(entry.number) || 0;
+                    emCounts.set(entry.number, count + 1);
+                }
             });
             
-            // Update grid cells
             const cells = document.querySelectorAll('.grid-cell');
             cells.forEach(cell => {
                 const number = parseInt(cell.textContent);
-                // Remove all existing level classes
-                cell.classList.remove('level-1', 'level-2', 'level-3', 'level-4', 'level-5');
+                // Remove all existing classes
+                cell.classList.remove(
+                    'level-1', 'level-2', 'level-3', 'level-4', 'level-5',
+                    'anh-color', 'em-color', 'both-color'
+                );
                 
-                // Only add color if number is used
-                if (usedNumbers.has(number)) {
-                    const level = getNumberLevel(number);
-                    cell.classList.add(`level-${level}`);
+                // Remove existing badges
+                const existingBadges = cell.querySelectorAll('.number-badge');
+                existingBadges.forEach(badge => cell.removeChild(badge));
+                
+                const hasAnh = anhCounts.has(number);
+                const hasEm = emCounts.has(number);
+                
+                if (hasAnh || hasEm) {
+                    // Add background color based on users if badges are shown
+                    if (showBadges) {
+                        if (hasAnh && hasEm) {
+                            cell.classList.add('both-color');
+                        } else if (hasAnh) {
+                            cell.classList.add('anh-color');
+                        } else {
+                            cell.classList.add('em-color');
+                        }
+                    } else {
+                        // Use regular level colors when badges are hidden
+                        const level = getNumberLevel(number);
+                        cell.classList.add(`level-${level}`);
+                    }
+                    
+                    // Add Anh badge (right side, pink, "Ô")
+                    if (hasAnh) {
+                        const anhBadge = document.createElement('div');
+                        anhBadge.className = 'number-badge anh' + (showBadges ? '' : ' hidden');
+                        anhBadge.textContent = 'Ô';
+                        cell.appendChild(anhBadge);
+                    }
+                    
+                    // Add Em badge (left side, blue, "B")
+                    if (hasEm) {
+                        const emBadge = document.createElement('div');
+                        emBadge.className = 'number-badge em' + (showBadges ? '' : ' hidden');
+                        emBadge.textContent = 'B';
+                        cell.appendChild(emBadge);
+                    }
                 }
             });
         }
@@ -343,6 +591,8 @@
             updateLog();
             updateCreatedNumbers();
             createNumberGrid();
+            
+            document.getElementById('toggleBadges').addEventListener('click', toggleBadges);
         });
     </script>
 </body>
