@@ -23,6 +23,14 @@
         button:hover {
             background-color: #218838;
         }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        button:disabled:hover {
+            background-color: #cccccc;
+        }
         #number {
             font-size: 28px;
             font-weight: bold;
@@ -54,31 +62,62 @@
             color: #dc3545;
             text-align: right;
         }
+        #numberGrid {
+            margin-top: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .grid-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 4px;
+            padding: 10px;
+        }
+        .grid-cell {
+            padding: 8px 4px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 12px;
+            border-radius: 4px;
+            background-color: white; /* Default white background */
+        }
+        .grid-cell.level-1 {
+            background-color: #28a745; /* Green - Best */
+            color: white;
+            font-weight: bold;
+        }
+        .grid-cell.level-2 {
+            background-color: #87cf3a; /* Light Green - Good */
+            color: white;
+            font-weight: bold;
+        }
+        .grid-cell.level-3 {
+            background-color: #ffc107; /* Yellow - Medium */
+            color: white;
+            font-weight: bold;
+        }
+        .grid-cell.level-4 {
+            background-color: #fd7e14; /* Orange - Bad */
+            color: white;
+            font-weight: bold;
+        }
+        .grid-cell.level-5 {
+            background-color: #dc3545; /* Red - Worst */
+            color: white;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <h1>Tiền dưỡng già năm 2025</h1>
     <button id="generateButton" onclick="generateRandomNumbers()">Tạo số</button>
-    <div id="number">Bám vào đây để mất tiền</div>
-    
-    <div id="log">
-        <h3>Nhật ký</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ngày</th>
-                    <th>Số tiền</th>
-                    <th>Ngày (Từ đầu năm)</th>
-                    <th>Lượt tạo</th>
-                </tr>
-            </thead>
-            <tbody id="logEntriesBody"></tbody>
-        </table>
-        <p class="total-sum" id="totalSum">Tổng số: 0 (0 đ)</p>
-    </div>
-
     <div id="createdNumbers">
-        <h3>Các số đã tạo</h3>
+        <h3>Số tiền bạn nhét heo hôm nay</h3>
         <table>
             <thead>
                 <tr>
@@ -90,23 +129,108 @@
         </table>
     </div>
 
+    <div id="log">
+        <h3>Nhật ký</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Số tiền</th>
+                    <th>Ngày (Từ đầu năm)</th>
+                    <th>Số lượt</th>
+                </tr>
+            </thead>
+            <tbody id="logEntriesBody"></tbody>
+        </table>
+        <p class="total-sum" id="totalSum">Tổng số: 0 (0 đ)</p>
+    </div>
+
+    
+
+    <div id="numberGrid">
+        <h3>Bảng số</h3>
+        <div class="grid-table" id="numberGridContainer"></div>
+    </div>
+
     <script>
         let startDate = new Date("2025-01-01");
+        let firstEntryDate = new Date("2025-02-12");
+        
+        function generateRandomDate(start, end) {
+            return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+        }
+        
         let preGeneratedNumbers = [
-            { date: "2025-02-15", number: 120 },
-            { date: "2025-02-16", number: 240 },
-            { date: "2025-02-17", number: 310 },
-            { date: "2025-02-18", number: 150 },
-            { date: "2025-02-19", number: 90 },
-            { date: "2025-02-20", number: 200 },
-            { date: "2025-02-21", number: 275 }
+            { date: "2025-02-12", dayCount: 43, number: 86, turnCount: 1 },
+            { date: "2025-02-12", dayCount: 43, number: 360, turnCount: 2 },
+            { date: "2025-02-13", dayCount: 44, number: 348, turnCount: 3 },
+            { date: "2025-02-13", dayCount: 44, number: 3, turnCount: 4 },
+            { date: "2025-02-14", dayCount: 45, number: 85, turnCount: 5 },
+            { date: "2025-02-14", dayCount: 45, number: 226, turnCount: 6 },
+            { date: "2025-02-15", dayCount: 46, number: 87, turnCount: 7 },
+            { date: "2025-02-15", dayCount: 46, number: 320, turnCount: 8 },
+            { date: "2025-02-16", dayCount: 47, number: 102, turnCount: 9 },
+            { date: "2025-02-16", dayCount: 47, number: 107, turnCount: 10 },
+            { date: "2025-02-17", dayCount: 48, number: 327, turnCount: 11 },
+            { date: "2025-02-17", dayCount: 48, number: 125, turnCount: 12 },
+            { date: "2025-02-18", dayCount: 49, number: 1, turnCount: 13 },
+            { date: "2025-02-18", dayCount: 49, number: 188, turnCount: 14 },
+            { date: "2025-02-19", dayCount: 50, number: 21, turnCount: 15 },
+            { date: "2025-02-19", dayCount: 50, number: 104, turnCount: 16 },
+            { date: "2025-02-20", dayCount: 51, number: 47, turnCount: 17 },
+            { date: "2025-02-20", dayCount: 51, number: 45, turnCount: 18 },
+            { date: "2025-02-21", dayCount: 52, number: 186, turnCount: 19 },
+            { date: "2025-02-21", dayCount: 52, number: 284, turnCount: 20 },
+            { date: "2025-02-22", dayCount: 53, number: 95, turnCount: 21 },
+            { date: "2025-02-22", dayCount: 53, number: 62, turnCount: 22 },
+            { date: "2025-02-23", dayCount: 54, number: 40, turnCount: 23 },
+            { date: "2025-02-23", dayCount: 54, number: 343, turnCount: 24 },
+            { date: "2025-02-24", dayCount: 55, number: 67, turnCount: 25 },
+            { date: "2025-02-24", dayCount: 55, number: 209, turnCount: 26 },
+            { date: "2025-02-25", dayCount: 56, number: 116, turnCount: 27 },
+            { date: "2025-02-25", dayCount: 56, number: 30, turnCount: 28 },
+            { date: "2025-02-26", dayCount: 57, number: 43, turnCount: 29 },
+            { date: "2025-02-26", dayCount: 57, number: 186, turnCount: 30 },
+            { date: "2025-02-27", dayCount: 58, number: 158, turnCount: 31 },
+            { date: "2025-02-27", dayCount: 58, number: 117, turnCount: 32 },
+            { date: "2025-02-28", dayCount: 59, number: 141, turnCount: 33 },
+            { date: "2025-02-28", dayCount: 59, number: 212, turnCount: 34 },
+            { date: "2025-03-01", dayCount: 60, number: 192, turnCount: 35 },
+            { date: "2025-03-01", dayCount: 60, number: 148, turnCount: 36 },
+            { date: "2025-03-02", dayCount: 61, number: 237, turnCount: 37 },
+            { date: "2025-03-02", dayCount: 61, number: 252, turnCount: 38 },
+            { date: "2025-03-03", dayCount: 62, number: 21, turnCount: 39 },
+            { date: "2025-03-03", dayCount: 62, number: 2, turnCount: 40 },
+            { date: "2025-03-04", dayCount: 63, number: 51, turnCount: 41 },
+            { date: "2025-03-04", dayCount: 63, number: 288, turnCount: 42 },
+            { date: "2025-03-05", dayCount: 64, number: 161, turnCount: 43 },
+            { date: "2025-03-05", dayCount: 64, number: 65, turnCount: 44 },
+            { date: "2025-03-06", dayCount: 65, number: 191, turnCount: 45 },
+            { date: "2025-03-06", dayCount: 65, number: 142, turnCount: 46 }
         ];
         
         let logEntries = [...preGeneratedNumbers];
         let createdNumbers = [];
         let totalSum = logEntries.reduce((sum, entry) => sum + entry.number, 0);
         let createdNumbersCount = logEntries.length;
+        let globalTurnCount = createdNumbersCount;
         
+        function checkButtonAvailability() {
+            let today = new Date().toISOString().split('T')[0];
+            let turnsToday = logEntries.filter(entry => entry.date === today).length;
+            let dayCount = Math.floor((new Date(today) - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            let maxTurns = createdNumbersCount < dayCount ? 2 : 1;
+            
+            let button = document.getElementById("generateButton");
+            if (turnsToday >= maxTurns) {
+                button.disabled = true;
+                button.title = "Đã hết lượt tạo số hôm nay";
+            } else {
+                button.disabled = false;
+                button.title = "";
+            }
+        }
+
         function generateRandomNumbers() {
             let today = new Date().toISOString().split('T')[0];
             let todayDate = new Date(today);
@@ -115,18 +239,29 @@
             
             let maxTurns = createdNumbersCount < dayCount ? 2 : 1;
             if (turnsToday >= maxTurns) {
-                document.getElementById("generateButton").disabled = true;
+                checkButtonAvailability();
                 return;
             }
             
             let newNumber = Math.floor(Math.random() * 365) + 1;
             totalSum += newNumber;
             createdNumbersCount++;
-            logEntries.push({ date: today, number: newNumber, dayCount, turnCount: turnsToday + 1 });
-            createdNumbers.push({ date: today, number: newNumber });
-            logEntries.sort((a, b) => a.number - b.number); // Sort from smallest to largest
+            globalTurnCount++;
+            
+            let newEntry = { 
+                date: today, 
+                number: newNumber, 
+                dayCount, 
+                turnCount: globalTurnCount
+            };
+            
+            logEntries.unshift(newEntry);
+            createdNumbers.unshift(newEntry);
+            
             updateLog();
             updateCreatedNumbers();
+            updateNumberGrid();
+            checkButtonAvailability();
         }
         
         function updateLog() {
@@ -136,13 +271,13 @@
             logEntries.forEach(entry => {
                 let row = document.createElement("tr");
                 row.innerHTML = `<td><strong>${entry.date}</strong></td>
-                                 <td>${entry.number} (${entry.number * 1000} đ)</td>
+                                 <td>${entry.number}.000 đ</td>
                                  <td>${entry.dayCount}</td>
                                  <td>${entry.turnCount}</td>`;
                 logEntriesBody.appendChild(row);
             });
             
-            document.getElementById("totalSum").innerText = `Tổng số: ${totalSum} (${totalSum * 1000} đ)`;
+            document.getElementById("totalSum").innerText = `Tổng số: ${totalSum}.000 đ`;
         }
         
         function updateCreatedNumbers() {
@@ -152,15 +287,62 @@
             createdNumbers.forEach(entry => {
                 let row = document.createElement("tr");
                 row.innerHTML = `<td><strong>${entry.date}</strong></td>
-                                 <td>${entry.number} (${entry.number * 1000} đ)</td>`;
+                                 <td>${entry.number}.000 đ</td>`;
                 createdNumbersBody.appendChild(row);
             });
         }
         
+        function getNumberLevel(number) {
+            if (number <= 73) return 1;
+            if (number <= 146) return 2;
+            if (number <= 219) return 3;
+            if (number <= 292) return 4;
+            return 5;
+        }
+
+        function updateNumberGrid() {
+            // Get all used numbers and their counts from logEntries
+            const usedNumbers = new Map();
+            logEntries.forEach(entry => {
+                usedNumbers.set(entry.number, true);
+            });
+            
+            // Update grid cells
+            const cells = document.querySelectorAll('.grid-cell');
+            cells.forEach(cell => {
+                const number = parseInt(cell.textContent);
+                // Remove all existing level classes
+                cell.classList.remove('level-1', 'level-2', 'level-3', 'level-4', 'level-5');
+                
+                // Only add color if number is used
+                if (usedNumbers.has(number)) {
+                    const level = getNumberLevel(number);
+                    cell.classList.add(`level-${level}`);
+                }
+            });
+        }
+
+        function createNumberGrid() {
+            let container = document.getElementById("numberGridContainer");
+            container.innerHTML = "";
+            container.className = "grid-table"; // Add grid-table class directly to container
+            
+            for (let i = 1; i <= 365; i++) {
+                let cell = document.createElement("div");
+                cell.className = "grid-cell";
+                cell.textContent = i;
+                container.appendChild(cell);
+            }
+            
+            updateNumberGrid();
+        }
+        
         document.addEventListener("DOMContentLoaded", () => {
-            logEntries.sort((a, b) => a.number - b.number); // Sort on load
+            checkButtonAvailability();
+            logEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
             updateLog();
             updateCreatedNumbers();
+            createNumberGrid();
         });
     </script>
 </body>
