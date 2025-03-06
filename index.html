@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qũy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f4f4f4;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: #007bff;
+        }
+        #log, #createdNumbers {
+            margin-top: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        .total-sum {
+            font-size: 18px;
+            font-weight: bold;
+            color: #dc3545;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tiền dưỡng già năm 2025</h1>
+    <button id="generateButton" onclick="generateRandomNumbers()">Tạo số</button>
+    <div id="number">Bám vào đây để mất tiền</div>
+    
+    <div id="log">
+        <h3>Nhật ký</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Số tiền</th>
+                    <th>Ngày (Từ đầu năm)</th>
+                    <th>Lượt tạo</th>
+                </tr>
+            </thead>
+            <tbody id="logEntriesBody"></tbody>
+        </table>
+        <p class="total-sum" id="totalSum">Tổng số: 0 (0 đ)</p>
+    </div>
+
+    <div id="createdNumbers">
+        <h3>Các số đã tạo</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Số tiền</th>
+                </tr>
+            </thead>
+            <tbody id="createdNumbersBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let startDate = new Date("2025-01-01");
+        let preGeneratedNumbers = [
+            { date: "2025-02-15", number: 120 },
+            { date: "2025-02-16", number: 240 },
+            { date: "2025-02-17", number: 310 },
+            { date: "2025-02-18", number: 150 },
+            { date: "2025-02-19", number: 90 },
+            { date: "2025-02-20", number: 200 },
+            { date: "2025-02-21", number: 275 }
+        ];
+        
+        let logEntries = [...preGeneratedNumbers];
+        let createdNumbers = [];
+        let totalSum = logEntries.reduce((sum, entry) => sum + entry.number, 0);
+        let createdNumbersCount = logEntries.length;
+        
+        function generateRandomNumbers() {
+            let today = new Date().toISOString().split('T')[0];
+            let todayDate = new Date(today);
+            let dayCount = Math.floor((todayDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            let turnsToday = logEntries.filter(entry => entry.date === today).length;
+            
+            let maxTurns = createdNumbersCount < dayCount ? 2 : 1;
+            if (turnsToday >= maxTurns) {
+                document.getElementById("generateButton").disabled = true;
+                return;
+            }
+            
+            let newNumber = Math.floor(Math.random() * 365) + 1;
+            totalSum += newNumber;
+            createdNumbersCount++;
+            logEntries.push({ date: today, number: newNumber, dayCount, turnCount: turnsToday + 1 });
+            createdNumbers.push({ date: today, number: newNumber });
+            logEntries.sort((a, b) => a.number - b.number); // Sort from smallest to largest
+            updateLog();
+            updateCreatedNumbers();
+        }
+        
+        function updateLog() {
+            let logEntriesBody = document.getElementById("logEntriesBody");
+            logEntriesBody.innerHTML = "";
+            
+            logEntries.forEach(entry => {
+                let row = document.createElement("tr");
+                row.innerHTML = `<td><strong>${entry.date}</strong></td>
+                                 <td>${entry.number} (${entry.number * 1000} đ)</td>
+                                 <td>${entry.dayCount}</td>
+                                 <td>${entry.turnCount}</td>`;
+                logEntriesBody.appendChild(row);
+            });
+            
+            document.getElementById("totalSum").innerText = `Tổng số: ${totalSum} (${totalSum * 1000} đ)`;
+        }
+        
+        function updateCreatedNumbers() {
+            let createdNumbersBody = document.getElementById("createdNumbersBody");
+            createdNumbersBody.innerHTML = "";
+            
+            createdNumbers.forEach(entry => {
+                let row = document.createElement("tr");
+                row.innerHTML = `<td><strong>${entry.date}</strong></td>
+                                 <td>${entry.number} (${entry.number * 1000} đ)</td>`;
+                createdNumbersBody.appendChild(row);
+            });
+        }
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            logEntries.sort((a, b) => a.number - b.number); // Sort on load
+            updateLog();
+            updateCreatedNumbers();
+        });
+    </script>
+</body>
+</html>
