@@ -508,15 +508,51 @@
             { date: "2025-03-05", dayCount: 64, number: 161, turnCount: 43, user: "Bà" },
             { date: "2025-03-05", dayCount: 64, number: 65, turnCount: 44, user: "Ông" },
             { date: "2025-03-06", dayCount: 65, number: 191, turnCount: 45, user: "Bà" },
-            { date: "2025-03-06", dayCount: 65, number: 142 , turnCount: 46, user: "Ông" }
+            { date: "2025-03-06", dayCount: 65, number: 142 , turnCount: 46, user: "Ông" },
+            { date: "2025-03-07", dayCount: 66, number: 33 , turnCount: 47, user: "Bà" },
+            { date: "2025-03-07", dayCount: 66, number: 207 , turnCount: 48, user: "Ông" }
+            
         ];
         
-        let logEntries = [...preGeneratedNumbers];
+        let logEntries = [];
         let createdNumbers = [];
-        let totalSum = logEntries.reduce((sum, entry) => sum + entry.number, 0);
-        let createdNumbersCount = logEntries.length;
-        let globalTurnCount = createdNumbersCount;
+        let totalSum = 0;
+        let createdNumbersCount = 0;
+        let globalTurnCount = 0;
         
+        // Add function to load data from localStorage
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('piggyBankData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                logEntries = data.logEntries;
+                createdNumbers = data.createdNumbers;
+                totalSum = data.totalSum;
+                createdNumbersCount = data.createdNumbersCount;
+                globalTurnCount = data.globalTurnCount;
+            } else {
+                // Initialize with pre-generated data if no saved data exists
+                logEntries = [...preGeneratedNumbers];
+                createdNumbers = [];
+                totalSum = logEntries.reduce((sum, entry) => sum + entry.number, 0);
+                createdNumbersCount = logEntries.length;
+                globalTurnCount = createdNumbersCount;
+                saveToLocalStorage();
+            }
+        }
+
+        // Add function to save data to localStorage
+        function saveToLocalStorage() {
+            const dataToSave = {
+                logEntries,
+                createdNumbers,
+                totalSum,
+                createdNumbersCount,
+                globalTurnCount
+            };
+            localStorage.setItem('piggyBankData', JSON.stringify(dataToSave));
+        }
+
         function checkButtonAvailability() {
             let today = new Date().toISOString().split('T')[0];
             let turnsToday = logEntries.filter(entry => entry.date === today).length;
@@ -567,6 +603,7 @@
             updateNumberGrid();
             updateMonthlyChart();
             checkButtonAvailability();
+            saveToLocalStorage();
         }
         
         function updateLog() {
@@ -804,6 +841,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            loadFromLocalStorage();
             checkButtonAvailability();
             logEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
             updateLog();
