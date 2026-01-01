@@ -1,868 +1,1608 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qũy</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vòng Quay May Mắn 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-            background-color: #f4f4f4;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        button:disabled:hover {
-            background-color: #cccccc;
-        }
-        #number {
-            font-size: 28px;
-            font-weight: bold;
-            margin-top: 20px;
-            color: #007bff;
-        }
-        #log, #createdNumbers {
-            margin-top: 40px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 15px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        .total-sum {
-            font-size: 18px;
-            font-weight: bold;
-            color: #dc3545;
-            text-align: right;
-        }
-        #numberGrid {
-            margin-top: 40px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 15px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .grid-table {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-            gap: 2px;
-            padding: 10px;
-        }
-        .grid-cell {
-            padding: 8px 4px;
-            text-align: center;
-            border: 1px solid #ddd;
-            font-size: 12px;
-            border-radius: 4px;
-            background-color: white;
-            position: relative;
-            min-height: 32px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .grid-cell.level-1 {
-            background-color: #28a745; /* Green - Best */
-            color: white;
-            font-weight: bold;
-        }
-        .grid-cell.level-2 {
-            background-color: #87cf3a; /* Light Green - Good */
-            color: white;
-            font-weight: bold;
-        }
-        .grid-cell.level-3 {
-            background-color: #ffc107; /* Yellow - Medium */
-            color: white;
-            font-weight: bold;
-        }
-        .grid-cell.level-4 {
-            background-color: #fd7e14; /* Orange - Bad */
-            color: white;
-            font-weight: bold;
-        }
-        .grid-cell.level-5 {
-            background-color: #dc3545; /* Red - Worst */
-            color: white;
-            font-weight: bold;
-        }
-        #logEntriesBody tr:nth-child(odd) {
-            background-color: #f2f2f2;
-        }
-        #logEntriesBody tr:nth-child(even) {
-            background-color: #ffffff;
-        }
-        .user-select {
-            margin: 20px 0;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        .user-ratio {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .ratio-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-        .ratio-option input[type="radio"] {
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
-        }
-        .ratio-option label {
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .xe-cam {
-            color: #fd7e14;
-            font-weight: bold;
-        }
-        .xe-hong {
-            color: #e83e8c;
-            font-weight: bold;
-        }
-        .number-badge {
-            position: absolute;
-            top: 2px;
-            width: 12px;
-            height: 12px;
-            font-size: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            border-radius: 50%;
-            color: white;
-        }
-        .number-badge.anh {
-            background-color: #e83e8c; /* Pink for Ông/Ô */
-            right: 2px;
-        }
-        .number-badge.em {
-            background-color: #007bff; /* Blue for Bà/B */
-            left: 2px;
-        }
-        .toggle-button {
-            margin: 10px;
-            padding: 5px 10px;
-            font-size: 14px;
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .toggle-button:hover {
-            background-color: #5a6268;
-        }
-        .toggle-button.active {
-            background-color: #28a745;
-        }
-        .number-badge.hidden {
-            display: none;
-        }
-        .grid-cell.anh-color {
-            background-color: rgba(232, 62, 140, 0.2); /* Light pink for Anh/Ô */
-        }
-        .grid-cell.em-color {
-            background-color: rgba(0, 123, 255, 0.2); /* Light blue for Em/B */
-        }
-        .grid-cell.both-color {
-            background: linear-gradient(
-                45deg, 
-                rgba(232, 62, 140, 0.2) 0%, 
-                rgba(232, 62, 140, 0.2) 50%, 
-                rgba(0, 123, 255, 0.2) 50%, 
-                rgba(0, 123, 255, 0.2) 100%
-            );
-        }
-        /* Responsive table styles */
-        @media screen and (max-width: 768px) {
-            body {
-                margin: 20px;
-            }
+      :root {
+        --bg-dark: #0f172a;
+        --cell-dark: #1e293b;
+      }
+      body {
+        background-color: var(--bg-dark);
+        color: white;
+        font-family: 'Inter', sans-serif;
+        letter-spacing: -0.01em;
+      }
+      #wheel-container {
+        position: relative;
+        width: 220px;
+        height: 220px;
+      }
+      #wheel-container canvas {
+        transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
+        border-radius: 50%;
+        width: 100%;
+        height: 100%;
+      }
+      #monthlyChart {
+        border-radius: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+      #pointer {
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 14px;
+        height: 20px;
+        background: #ef4444;
+        clip-path: polygon(50% 100%, 0 0, 100% 0);
+        z-index: 30;
+      }
+      .month-block {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        margin-bottom: 6px;
+        transition: all 0.3s ease;
+        display: none;
+      }
+      .month-block.is-visible {
+        display: block;
+      }
+      .month-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        cursor: pointer;
+      }
+      .is-collapsed .month-header {
+        opacity: 0.35;
+      }
+      .month-title {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        width: 70px;
+        letter-spacing: 0.05em;
+      }
+      .stat-summary {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 9px;
+        font-family: monospace;
+        color: #64748b;
+      }
+      .month-active:not(.is-collapsed) {
+        border: 1px solid #6366f1 !important;
+        transform: scale(1.01);
+        z-index: 10;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+      .month-active:not(.is-collapsed) .month-title {
+        color: #4f5968;
+      }
+      .month-active:not(.is-collapsed) .stat-summary {
+        color: #475569;
+      }
+      .month-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        padding: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        justify-items: center;
+      }
+      .day-cell {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        position: relative;
+        background-color: var(--cell-dark);
+        transition: all 0.2s;
+      }
+      .empty-cell {
+        visibility: hidden !important;
+      }
+      .cell-today {
+        outline: 2px solid #ef4444;
+        outline-offset: 2px;
+        z-index: 5;
+      }
+      .shape {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .shape-circle {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .shape-triangle {
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-bottom: 10px solid currentColor;
+      }
+      .test-controls {
+        display: none;
+      }
+      .test-mode-active .test-controls {
+        display: flex;
+      }
+      .history-item {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        padding: 6px 10px;
+        font-size: 9px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        font-family: monospace;
+      }
+      .history-item b {
+        color: #f8fafc;
+        text-align: right;
+      }
+      .collapse-content {
+        max-height: 1000px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+      }
+      .is-collapsed .collapse-content {
+        max-height: 0;
+        opacity: 0;
+      }
+      .editable-name {
+        cursor: pointer;
+        text-decoration: underline dotted;
+        text-underline-offset: 2px;
+      }
+      .editable-name:hover {
+        color: #6366f1;
+      }
+      .btn-hidden {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translate(-50%, -50%) scale(0) !important;
+      }
+      #spinBtn {
+        font-size: 8px;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
 
-            #createdNumber {
-                margin: 10px 5px;
-            }
+        /* Màu sắc máu chiến: Gradient Đỏ - Cam rực cháy */
+        background: linear-gradient(135deg, #ff4500, #ff0000);
+        color: white !important;
+        border: 2px solid rgba(255, 255, 255, 0.4);
 
-            #log {
-                padding: 8px;
-            }
+        /* Đổ bóng Neon rực rỡ */
+        box-shadow: 0 0 15px rgba(255, 69, 0, 0.6),
+          inset 0 0 5px rgba(255, 255, 255, 0.5);
 
-            #log table {
-                font-size: 14px;
-            }
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 1;
+        opacity: 1;
+        visibility: visible;
+      }
 
-            #log tr {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 5px;
-                margin-bottom: 10px;
-                padding: 8px;
-                background: #f8f9fa;
-                border-radius: 8px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            }
+      #spinBtn:hover {
+        transform: translate(-50%, -50%) scale(1.15) rotate(5deg);
+        background: linear-gradient(135deg, #ff0000, #ff8c00);
+        box-shadow: 0 0 25px rgba(255, 0, 0, 0.9);
+        cursor: pointer;
+      }
 
-            #log td {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 4px;
-                border: none;
-                text-align: left;
-            }
+      /* Hiệu ứng nhịp đập khi chưa quay */
+      .btn-pulse {
+        animation: pulse-red 1.5s infinite;
+      }
 
-            #log td:before {
-                content: attr(data-label);
-                font-size: 12px;
-                color: #666;
-                margin-bottom: 2px;
-            }
-
-            /* Specific cell styling */
-            #log td[data-label="Ngày"] {
-                color: #007bff;
-                font-weight: bold;
-            }
-
-            #log td[data-label="Số tiền"] {
-                color: #28a745;
-                font-weight: bold;
-            }
-
-            #log td[data-label="Người chơi"] {
-                font-weight: bold;
-            }
-
-            /* Total sum styling */
-            .total-sum {
-                display: grid;
-                gap: 8px;
-                text-align: left;
-                padding: 10px;
-                margin-top: 15px;
-                border-top: 2px solid #ddd;
-                font-size: 16px;
-            }
-
-            /* Hide table headers on mobile */
-            #log thead {
-                display: none;
-            }
-
-            /* Adjust the created numbers table */
-            #createdNumbers {
-                margin: 20px 5px;
-            }
+      @keyframes pulse-red {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+          box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
         }
-        #monthlyChart {
-            margin-top: 40px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 15px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        70% {
+          transform: translate(-50%, -50%) scale(1.05);
+          box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
         }
-        .month-bar {
-            margin: 15px 0;
-            padding: 15px;
-            border-radius: 8px;
-            background: #f8f9fa;
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
         }
-        .month-bar-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
         }
-        .month-bar-label .month-name {
-            font-size: 16px;
-            font-weight: bold;
-            color: #495057;
+        25% {
+          transform: translateX(-4px) rotate(-1deg);
         }
-        .month-bar-label .month-total {
-            font-size: 18px;
-            font-weight: bold;
-            color: #28a745;
+        75% {
+          transform: translateX(4px) rotate(1deg);
         }
-        .month-bar-progress {
-            height: 24px;
-            background: #e9ecef;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .month-bar-fill {
-            height: 100%;
-            background: linear-gradient(to right, #007bff, #28a745);
-            transition: width 0.3s ease;
-        }
-        .month-details {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #dee2e6;
-        }
-        .month-detail-item {
-            text-align: center;
-        }
-        .month-detail-value {
-            font-size: 16px;
-            font-weight: bold;
-            color: #007bff;
-            display: block;
-        }
-        .month-detail-label {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 2px;
-        }
-        .money-amount {
-            font-size: 16px;
-            font-weight: bold;
-            color: #28a745;
-        }
-        .turn-number {
-            font-weight: bold;
-            color: #007bff;
-        }
-        .day-number {
-            color: #6c757d;
-        }
-        .date-cell {
-            font-weight: bold;
-            color: #495057;
-        }
-        .user-cell {
-            font-weight: bold;
-        }
-        .user-ong {
-            color: #e83e8c;
-        }
-        .user-ba {
-            color: #007bff;
-        }
-
-        /* Adjust mobile styles */
-        @media screen and (max-width: 768px) {
-            #log td[data-label="Số tiền"] {
-                color: inherit;
-            }
-            #log td[data-label="Số tiền"] .money-amount {
-                display: block;
-                margin-top: 4px;
-            }
-        }
+      }
+      .animate-shake {
+        animation: shake 0.2s ease-in-out infinite;
+      }
+      #quote-area {
+        font-size: 12px;
+        color: rgb(119 178 96);
+      }
     </style>
-</head>
-<body>
-    <h1>Tiền dưỡng già năm 2025</h1>
-    <div class="user-ratio">
-        <div class="ratio-option">
-            <input type="radio" id="anh" name="userSelect" value="Ông" checked>
-            <label for="anh" class="xe-cam">Ông</label>
+  </head>
+  <body class="p-4 lg:p-8">
+    <div
+      id="loading-overlay"
+      class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex flex-col items-center justify-center transition-opacity duration-300 hidden"
+    >
+      <div
+        class="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin mb-4"
+      ></div>
+      <p
+        class="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 animate-pulse"
+      >
+        Đang đồng bộ dữ liệu...
+      </p>
+    </div>
+
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-4 space-y-4 lg:sticky lg:top-8 h-fit">
+        <div
+          class="bg-slate-900/80 backdrop-blur-md p-6 rounded-[1.5rem] border border-white/5 shadow-2xl text-center"
+        >
+          <div id="quote-area" class="mb-4 h-8 italic"></div>
+          <div class="flex flex-col items-center gap-6">
+            <div id="wheel-container">
+              <div id="pointer"></div>
+              <canvas id="wheelCanvas" width="300" height="300"></canvas>
+              <div
+                id="lucky-number-display"
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center bg-white w-20 h-20 rounded-full shadow-[0_0_30px_rgba(255,255,255,0.5)] z-20 scale-0 transition-transform duration-500"
+              >
+                <span
+                  class="text-[10px] text-slate-400 font-bold uppercase leading-none"
+                  >Kết quả</span
+                >
+                <span
+                  id="result-number"
+                  class="text-3xl font-black text-slate-900 leading-none mt-1"
+                  >0</span
+                >
+              </div>
+              <button
+                id="spinBtn"
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full font-black shadow-xl active:scale-95 text-[9px] btn-pulse"
+              >
+                CHIẾN!
+              </button>
+            </div>
+            <div class="w-full space-y-3">
+              <button
+                onclick="toggleTestControls()"
+                class="w-full py-1 text-[7px] font-black tracking-widest text-slate-500 hover:text-indigo-400 transition-colors uppercase"
+              >
+                [ Chế độ Nhà phát triển ]
+              </button>
+              <p
+                id="turn-display"
+                class="font-bold uppercase tracking-tighter text-xl text-indigo-400"
+              >
+                Lượt: A ●
+              </p>
+              <button
+                onclick="swapTurn()"
+                id="swapBtn"
+                class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-[9px] font-bold rounded-xl border border-white/5 transition-all uppercase tracking-widest text-slate-400"
+              >
+                ⇄ Đổi lượt cho đối thủ
+              </button>
+              <div class="flex flex-col gap-2">
+                <span
+                  id="current-date-ui"
+                  class="bg-indigo-500/5 px-4 py-2 rounded-xl font-mono text-indigo-400 flex items-center justify-center text-[10px] border border-indigo-500/10"
+                  >01/01/2026</span
+                >
+                <div
+                  id="test-controls-container"
+                  class="test-controls flex-col gap-2"
+                  style="display: none"
+                >
+                  <button
+                    onclick="nextDay()"
+                    class="w-full bg-white/5 hover:bg-white/10 py-2 rounded-xl font-bold uppercase text-[9px] border border-white/5"
+                  >
+                    Ngày kế tiếp (Test)
+                  </button>
+                  <button
+                    onclick="nextMonthTest()"
+                    class="w-full bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 py-2 rounded-xl font-bold uppercase text-[8px]"
+                  >
+                    ➔ Sang tháng mới
+                  </button>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <div class="grid grid-cols-2 gap-2">
+                    <input
+                      type="date"
+                      id="backfill-date"
+                      min="2026-01-01"
+                      max="2026-12-31"
+                      class="bg-white/5 text-[9px] px-3 py-2 rounded-xl border border-white/10 text-slate-300"
+                      onchange="setRandomQuote()"
+                    />
+                    <button
+                      onclick="spinBackfill()"
+                      class="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 py-2 rounded-xl font-bold uppercase text-[8px] border border-indigo-500/20"
+                    >
+                      Quay bù
+                    </button>
+                  </div>
+                  <div
+                    id="missed-days"
+                    class="text-[8px] text-slate-500 text-center"
+                  ></div>
+                </div>
+              </div>
+              <div
+                id="swap-msg"
+                class="text-[8px] text-center text-indigo-400 uppercase h-2 mt-1 font-bold"
+              ></div>
+            </div>
+          </div>
         </div>
-        <div class="ratio-option">
-            <input type="radio" id="em" name="userSelect" value="Bà">
-            <label for="em" class="xe-hong">Bà</label>
+
+        <div
+          class="bg-slate-900/40 p-3 rounded-xl border border-white/5 grid grid-cols-3 gap-2 text-center"
+        >
+          <div onclick="editPlayerName('p1')" class="cursor-pointer group">
+            <p
+              id="label-p1"
+              class="text-[7px] text-slate-600 font-black uppercase group-hover:text-indigo-400 transition-colors"
+            >
+              A (Sửa)
+            </p>
+            <p id="total-year-a" class="text-xs font-bold text-indigo-400">0</p>
+          </div>
+          <div onclick="editPlayerName('p2')" class="cursor-pointer group">
+            <p
+              id="label-p2"
+              class="text-[7px] text-slate-600 font-black uppercase group-hover:text-emerald-500 transition-colors"
+            >
+              B
+            </p>
+            <p id="total-year-b" class="text-xs font-bold text-emerald-500">
+              0
+            </p>
+          </div>
+          <div>
+            <p class="text-[7px] text-slate-600 font-black uppercase">
+              Tổng năm
+            </p>
+            <p id="total-year-all" class="text-xs font-bold text-slate-300">
+              0
+            </p>
+          </div>
         </div>
+
+        <div
+          id="history-section"
+          class="bg-slate-900/20 rounded-xl border border-white/5 overflow-hidden"
+        >
+          <div
+            class="p-3 bg-white/5 flex justify-between items-center cursor-pointer"
+            onclick="toggleSection('history-section')"
+          >
+            <span class="font-bold uppercase text-[8px] text-slate-500"
+              >Lịch sử quay</span
+            >
+            <span class="text-[8px] text-slate-600">▼</span>
+          </div>
+          <div class="collapse-content">
+            <div id="history-list" class="max-h-48 overflow-y-auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-8">
+        <div class="flex justify-between items-center mb-4 px-1">
+          <h2
+            class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600"
+          >
+            Bảng theo dõi năm 2026
+          </h2>
+          <div class="flex gap-4">
+            <button
+              onclick="applyMassAction('collapse')"
+              class="text-[8px] font-bold uppercase text-slate-600 hover:text-slate-400"
+            >
+              Thu gọn
+            </button>
+            <button
+              onclick="applyMassAction('summary')"
+              class="text-[8px] font-bold uppercase text-emerald-500 hover:text-emerald-400"
+            >
+              Tổng quan
+            </button>
+            <button
+              onclick="applyMassAction('expand')"
+              class="text-[8px] font-bold uppercase text-indigo-500 hover:text-indigo-400"
+            >
+              Mở rộng
+            </button>
+          </div>
+        </div>
+        <div id="vertical-graph-container" class="space-y-2"></div>
+        <div class="mt-8 bg-slate-900/40 p-6 rounded-2xl border border-white/5">
+          <h3
+            class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 text-center"
+          >
+            So sánh tích lũy tháng
+          </h3>
+          <div class="h-64"><canvas id="monthlyChart"></canvas></div>
+        </div>
+      </div>
     </div>
-    <button id="generateButton" onclick="generateRandomNumbers()">Tạo số</button>
-    <div id="createdNumbers">
-        <h3>Số tiền bạn nhét heo hôm nay</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ngày</th>
-                    <th>Số tiền</th>
-                </tr>
-            </thead>
-            <tbody id="createdNumbersBody"></tbody>
-        </table>
-    </div>
-
-
-    <div id="numberGrid">
-        <button id="toggleBadges" class="toggle-button active">Ẩn người góp công</button>
-        <div class="grid-table" id="numberGridContainer"></div>
-    </div>
-
-    <div id="monthlyChart">
-        <h3>Thống kê theo tháng</h3>
-        <div id="monthlyChartContent"></div>
-    </div>
-
-    <div id="log">
-        <h3>Nhật ký</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ngày</th>
-                    <th>Số tiền</th>
-                    <th>Ngày (Từ đầu năm)</th>
-                    <th>Số lượt</th>
-                    <th>Người chơi</th>
-                </tr>
-            </thead>
-            <tbody id="logEntriesBody"></tbody>
-        </table>
-        <p class="total-sum" id="totalSum">Tổng số: 0 (0 đ)</p>
-    </div>
-
-    
-
 
     <script>
-        let startDate = new Date("2025-01-01");
-        let firstEntryDate = new Date("2025-02-12");
-        
-        function generateRandomDate(start, end) {
-            return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+      const GOOGLE_SCRIPT_URL =
+        'https://script.google.com/macros/s/AKfycby4JDf4ADd6YX3mzIKL0JfiAEqPyR9xdphIf9GgCusqjWEJD0cknzGZSdT29EU6B78DYw/exec';
+      const testMode = true;
+      let playerNames = { p1: 'Người chơi A', p2: 'Người chơi B' };
+      let swapStatus = Array.from({ length: 12 }, () => ({
+        p1: false,
+        p2: false,
+      }));
+
+      const UI_TEXTS = {
+        turns: [
+          'Cuộc chơi của',
+          'Sân khấu này là của',
+          'Đang cầm lái:',
+          'Quyền sinh sát thuộc về',
+          'Tới công chuyện với',
+          'Thử vận may nào,',
+        ],
+        swaps: [
+          'đã nhường sân khấu cho',
+          'cảm thấy không ổn và đổi cho',
+          'đã đẩy cái khó cho',
+          'quyết định lùi bước, nhường cho',
+          'đã trao gửi niềm tin vào',
+          "vừa 'sang tay' lượt quay cho",
+        ],
+        spinMessages: {
+          v1: [
+            // 1-60: Siêu rẻ (Xanh lá đậm)
+            '✅ QUÁ HỜI! {n}k chỉ bằng tiền gửi xe!',
+            '🤑 Bậc thầy tiết kiệm là đây! {n} điểm!',
+            '💎 Kèo thơm vỉa hè! Có {n}k thôi sao?',
+            '🌈 May mắn mỉm cười! Ví vẫn đầy nguyên!',
+            '🐥 Nhẹ tựa lông hồng, {n}k quá tình cảm!',
+            '💸 Quá rẻ! Cứ quay thế này cả ngày cũng được!',
+            '🚀 Cú quay của năm! Tiết kiệm tối đa!',
+            '🍵 {n}k? Chỉ bằng ly trà đá thôi bạn ơi!',
+            '✨ Vận may rực rỡ, {n} điểm quá nhẹ nhàng!',
+            '🍀 Thần tài hộ mệnh rồi, {n}k quá là ít!',
+            '🍬 Có {n}k à? Mua được vài viên kẹo thôi!',
+            '🎉 Ăn mừng thôi! Mất ít mà vui nhiều!',
+            '🔥 Đỉnh của chóp! Bàn tay vàng hốt kèo rẻ!',
+            '🌟 {n} điểm! Bạn là thần tiết kiệm rồi!',
+            '🍯 Ngọt ngào quá! {n}k không bõ dính răng!',
+            '🎈 Bay bổng tâm hồn vì chỉ mất có {n}k!',
+            '🥗 Ăn uống xả láng vì quay có {n} điểm!',
+            '🥇 Vô địch rẻ! {n}k là một sự sỉ nhục với ví tiền!',
+            '🧘‍♂️ Tâm tịnh vì ví không đau, {n}k quá ổn!',
+            '🥂 Cạn ly! Cú quay này xứng đáng 10 điểm!',
+          ],
+          v2: [
+            // 61-120: Rẻ (Xanh chuối)
+            '✅ Khá khen! {n}k vẫn trong tầm kiểm soát!',
+            '💸 Rẻ chán! {n} điểm chưa bằng bát phở!',
+            '🍃 Gió thổi nhẹ qua ví, có {n}k thôi!',
+            '⚡ Vẫn hời nhé! {n} điểm là quá ổn!',
+            '🌻 Tươi không cần tưới, {n}k vẫn còn xanh!',
+            '🥣 {n}k? Bữa sáng nhẹ nhàng không lo nghĩ!',
+            '🍭 Ngọt lịm! {n} điểm này quá là hợp lý!',
+            '🏄‍♂️ Lướt sóng an toàn, {n}k chưa làm khó được bạn!',
+            '🧩 Mảnh ghép hoàn hảo cho túi tiền: {n}k!',
+            '🔋 Năng lượng tràn trề vì {n} điểm vẫn rẻ!',
+            '🎈 Nhẹ nhàng như mây, {n}k không đáng lo!',
+            '🎋 Trúc xinh trúc mọc đầu đình, {n}k vẫn quá xinh!',
+            '🛵 {n}k? Chỉ là một bình xăng thôi mà!',
+            '💎 Đá quý rơi vào tay, {n} điểm quá đẹp!',
+            '🎵 Nhạc lên! {n}k quay nhảy múa tưng bừng!',
+            '🥥 Quay trúng quả dừa, {n}k mát rượi cả ví!',
+            '🏹 Bắn trúng đích rẻ: {n} điểm!',
+            '👟 Chạy bộ cũng ra {n}k, quá là bèo!',
+            '🚲 Đạp xe đi chơi thôi, {n}k còn dư chán!',
+            '👒 Đội mũ bảo hiểm vào, {n}k rẻ đến mức chóng mặt!',
+          ],
+          v3: [
+            // 121-180: Trung bình (Vàng)
+            '⚖️ Công bằng chưa? {n}k là con số trung thực!',
+            '🌤️ Trời hửng nắng, {n} điểm không cao không thấp!',
+            '🍿 Xem phim thôi, {n}k là giá vé hợp lý!',
+            '🥥 Tầm trung rồi, {n} điểm vẫn chịu được!',
+            '🛶 Chèo lái khéo léo, {n}k là mức trung bình!',
+            '🆗 Chấp nhận được! {n} điểm công tâm!',
+            '🍌 Chuối ngọt cuối mùa, {n}k ổn áp!',
+            '🧱 Nền tảng vững chắc, {n} điểm tích lũy dần!',
+            '🛵 Thêm chút xăng, {n}k lướt phố!',
+            '🧘 Thăng bằng tốt! {n} điểm không gây sốc!',
+            '☕ Ly cà phê sữa {n}k, ngồi nhâm nhi thôi!',
+            '📉 Đồ thị đi ngang, {n} điểm bình ổn!',
+            '⛅ Mây mờ mờ, {n}k không gây bão ví!',
+            '🛤️ Đường dài mới biết ngựa hay, {n} điểm!',
+            '🔔 Chuông reo là bắn, {n}k vừa vặn!',
+            '📦 Đóng gói vận may, {n} điểm mang về!',
+            '🍎 Quả táo nhỏ {n}k, cắn một miếng thôi!',
+            '🎺 Thổi kèn ăn mừng nhẹ, {n} điểm!',
+            '🪁 Diều bay vừa tầm, {n}k không sợ đứt dây!',
+            '🧤 Ấm áp vừa đủ với {n} điểm tích lũy!',
+          ],
+          v4: [
+            // 181-240: Hơi đắt (Cam)
+            '⚠️ Cẩn thận nhé! {n}k là bắt đầu xót rồi đấy!',
+            "🟠 Màu cam cảnh báo, {n} điểm hơi bị 'chát'!",
+            '🔥 Hơi nóng rồi nha! {n}k cũng ra gì đấy!',
+            '📉 Ví tiền bắt đầu run, {n} điểm rồi!',
+            '🍜 Bữa tối thịnh soạn bay màu vì {n}k!',
+            '🧱 Hơi nặng đô rồi! {n} điểm chứ đùa à!',
+            '🛒 Đi siêu thị là hết sạch {n}k này!',
+            '🕯️ Thắp nến cầu nguyện, {n} điểm hơi cao!',
+            '🪁 Dây diều hơi căng, {n}k rồi bạn ơi!',
+            '🥊 Một cú đấm vào ví: {n} điểm!',
+            '🧥 Sắm áo mới là mất {n}k, tiếc quá!',
+            '🌶️ Cay nồng! {n} điểm làm mặt đỏ bừng!',
+            '⛽ Xăng tăng giá hay sao mà ra {n}k thế này!',
+            '🛠️ Cần sửa lại tay quay, {n} điểm hơi quá!',
+            '🚿 Dội gáo nước lạnh vào ví: {n}k!',
+            '📻 Nghe đài báo bão: {n} điểm sắp tới!',
+            '🛹 Trượt chân một cái là đi tong {n}k!',
+            '🥯 Bánh mì kẹp thịt xịn cũng chỉ {n}k thôi!',
+            '🧺 Gom củi đốt tiền: {n} điểm!',
+            '📢 Thông báo: Ví bạn vừa vơi đi {n}k!',
+          ],
+          v5: [
+            // 241-300: Đắt (Đỏ)
+            '🛑 DỪNG LẠI! {n}k là đau đớn lắm rồi!',
+            '🔴 Báo động đỏ! {n} điểm cháy túi như chơi!',
+            '💸 Tiền rơi không phanh! {n}k lận đó!',
+            '😭 Khóc một dòng sông... {n} điểm chát quá!',
+            '🌋 Núi lửa phun trào tiền bạc! {n}k!',
+            '💔 Tan vỡ con tim vì con số {n}!',
+            '🏧 Máy rút tiền gọi tên bạn: {n} điểm!',
+            '🚑 Cấp cứu ví tiền gấp! {n}k rồi!',
+            '⛈️ Bão táp mưa sa đổ xuống túi: {n}k!',
+            '📉 Một pha xử lý đi vào lòng đất: {n} điểm!',
+            '🧨 Nổ tung ví tiền với {n}k!',
+            '🕳️ Hố đen vũ trụ hút sạch {n} điểm!',
+            '🥀 Hoa rơi cửa phật, ví rơi {n}k!',
+            '🥺 Nhìn ví mà thương, {n} điểm quá phũ!',
+            '🥊 Đo ván túi tiền bằng {n}k!',
+            '🥵 Mồ hôi hột chảy ra vì {n} điểm!',
+            '🥢 Nhịn ăn sáng thôi, {n}k là nhiều lắm!',
+            '🕸️ Ví đóng mạng nhện vì {n} điểm vừa đi!',
+            '🚫 Cấm quay bừa bãi! {n}k chứ ít gì!',
+            '💀 Điềm báo cháy túi: {n} điểm!',
+          ],
+          v6: [
+            // 301-365: Cháy túi (Đỏ đô)
+            "😱 TẬN THẾ! {n}k? Cú này 'bay màu' thật rồi!",
+            '💸 Khóc cạn nước mắt... {n} điểm là cả gia tài!',
+            '📉 Toang thật sự! Nhịn ăn cả tuần thôi!',
+            '🌋 Cháy túi cấp độ cực đại: {n} điểm!',
+            '🚑 Ví tiền đã lâm chung sau cú quay {n}k!',
+            '🏧 ATM thông báo số dư không đủ vì {n}k!',
+            '💀 Vĩnh biệt túi tiền, {n} điểm quá tàn nhẫn!',
+            '🛑 Cháy nhà rồi! {n}k bay theo mây khói!',
+            '🥀 Đau đớn lòng! {n} điểm này ai chịu nổi?',
+            '💔 Con tim rỉ máu vì con số {n}k!',
+            '😭 Chia buồn sâu sắc với ví của bạn! {n} điểm!',
+            '🆘 Giải cứu con tin (cái ví) ngay! {n}k!',
+            '🛸 Người ngoài hành tinh lấy mất {n}k rồi!',
+            '🌑 Nhật thực toàn phần trong ví: {n} điểm!',
+            '🌋 Cơn thịnh nộ của vòng quay: {n}k!',
+            '🌧️ Mưa axit đổ vào túi tiền: {n} điểm!',
+            '🧗‍♂️ Rơi xuống vực thẳm tài chính với {n}k!',
+            '🦴 Gặm bánh mì trừ cơm thôi, {n} điểm rồi!',
+            '🖤 Một màu đen u tối bao trùm túi tiền: {n}k!',
+            '🧨 Bùm! Túi tiền nổ tung ở mốc {n} điểm!',
+          ],
+        },
+        spinButtons: [
+          'XÚC!!!',
+          'CHIẾN!',
+          'VẢ NÓ!',
+          'TỚI LUÔN',
+          'LÊN NHẠC',
+          'KHÔ MÁU',
+          'QUẤT',
+          'BEM!',
+          'NỔ HŨ',
+          'CHƠI TỚI BẾN',
+          'HỐT KÈO',
+          'XẢ LÁNG',
+          'BOOM!',
+          'VÀO VIỆC',
+          'LÀM TÍ',
+        ],
+        quotes: [
+          'Một xu tiết kiệm là một xu kiếm được. - Benjamin Franklin',
+          'Đừng tiết kiệm những gì còn lại sau khi chi tiêu. - Warren Buffett',
+          'Tiền bạc là một người đầy tớ tốt, nhưng là chủ tồi. - Francis Bacon',
+          'Kẻ khôn ngoan giữ tiền trong đầu, không phải trong tim. - Jonathan Swift',
+          'Mua thứ bạn không cần, sớm muộn sẽ bán thứ bạn cần. - Warren Buffett',
+          'Quản lý tiền là 20% kiến thức và 80% là hành vi. - Dave Ramsey',
+          'Biết đủ là sự giàu có tối thượng. - Lão Tử',
+          'Thời gian là tiền bạc. - Benjamin Franklin',
+          'Càng ít ham muốn, bạn càng giàu có.',
+          'Tiền không tự mọc trên cây, nó mọc từ nỗ lực.',
+          'Đừng tiêu tiền trước khi bạn có nó. - Thomas Jefferson',
+          'Hãy cẩn thận khoản chi nhỏ; một lỗ rò bé làm đắm tàu lớn.',
+          'Tiền bạc giống như phân bón, không rải ra sẽ bốc mùi.',
+          'Đầu tư vào bản thân là khoản đầu tư lãi nhất. - Benjamin Franklin',
+          'Người giàu đầu tư thời gian, người nghèo đầu tư tiền bạc.',
+          'Nợ nần là vực thẳm không đáy.',
+          'Kẻ coi tiền là tất cả sẽ làm tất cả vì tiền.',
+          'Cái gì mua được bằng tiền, cái đó rẻ. - Erich Maria Remarque',
+          'Người đi vay là nô lệ của chủ nợ. - Kinh Thánh',
+          'Chi phí là lượng thời gian bạn đổi lấy nó. - Henry Thoreau',
+          'Đừng đặt niềm tin vào tiền, hãy đặt tiền nơi bạn tin.',
+          'Đừng để cái ví đầy làm cái đầu trống rỗng.',
+          'Sự giàu có thực sự là một tâm hồn bình an.',
+          'Tiền bạc không tạo ra ý tưởng, ý tưởng tạo ra tiền.',
+          'Thế giới đủ cho nhu cầu, nhưng không đủ cho lòng tham.',
+          'Tiết kiệm hôm nay, an nhàn ngày mai.',
+          'Đừng đuổi theo tiền, hãy đuổi theo giá trị.',
+          'Hạnh phúc không nằm ở ví tiền, mà ở sự tự do.',
+          'Đồng tiền đi trước là đồng tiền khôn.',
+          'Sống theo nhu cầu, đừng sống theo mong muốn.',
+          'Tiền mua được thuốc nhưng không mua được sức khỏe.',
+          'Mất tiền là mất ít, mất lòng tin là mất tất cả.',
+          'Đừng chết trên đống vàng mà tâm hồn nghèo nàn.',
+          'Nghèo không xấu hổ, sợ nghèo mới xấu hổ.',
+          'Sự giàu có là khả năng trải nghiệm cuộc sống trọn vẹn.',
+          'Tiền bạc mua được ngôi nhà nhưng không mua được tổ ấm.',
+          'Hãy làm chủ đồng tiền, đừng làm nô lệ.',
+          'Giá trị của một người không nằm ở tài khoản ngân hàng.',
+          'Đừng mua thứ để làm hài lòng người bạn không thích.',
+          'Ví tiền đang khóc hay đang cười là do bạn.',
+          'Mỗi đồng tiền tiết kiệm là một lá phiếu cho tương lai.',
+          'Tiết kiệm là một đức tính, chi tiêu là một thói quen.',
+          'Đừng đốt đuốc tìm tiền khi trái tim đang mục nát.',
+          'Tiền không làm thay đổi bản chất, nó chỉ bộc lộ bản chất.',
+          'Tài sản lớn nhất là sức khỏe.',
+          'Học cách quản lý tiền trước khi nó quản lý bạn.',
+          'Người giàu nhất là người có niềm vui ít tốn kém nhất.',
+          'Đừng sống để kiếm tiền, hãy kiếm tiền để sống.',
+          'Tiền chỉ là công cụ. Nó sẽ đưa bạn đến nơi bạn muốn.',
+          'Kẻ nghèo nhất là kẻ không có gì ngoài tiền.',
+          'Đừng bao giờ tiêu tiền trước khi kiếm được nó.',
+          'Bản chất của tiền là sự lưu thông.',
+          'Sự giàu có thực sự nằm ở đôi tay cho đi.',
+          'Hãy tiêu tiền vào kỷ niệm, đừng tiêu vào vật chất.',
+          'Một túi rỗng không ngăn được bạn, chỉ đầu rỗng mới làm thế.',
+          'Túi tiền càng nặng, trái tim càng phải nhẹ nhàng.',
+          'Khi túi rỗng, bạn sẽ biết ai là bạn thật sự.',
+          'Tiền bạc có cánh, hãy dạy nó bay về phía bạn.',
+          'Hãy là kiến tha lâu cũng đầy tổ.',
+          'Đừng để sự xa hoa che mờ đi mục đích sống.',
+          'Tài chính lành mạnh bắt đầu từ tâm trí lành mạnh.',
+          'Đồng tiền chân chính là mồ hôi và nước mắt.',
+          'Đừng nhìn vào giá cả, hãy nhìn vào giá trị lâu dài.',
+          'Một ngày không tiết kiệm là một ngày lãng phí.',
+          'Đừng so sánh ví tiền của mình với người khác.',
+          'Hạnh phúc là biết mình có đủ.',
+          'Tiết kiệm là bí mật của sự độc lập tài chính.',
+          'Đừng để tiền bạc là rào cản giữa bạn và những người thân yêu.',
+          'Sự giàu có đích thực không thể đong đếm bằng con số.',
+          'Hãy trân trọng từng đồng lẻ bạn có.',
+          'Đồng tiền là một công cụ, không phải là ông chủ.',
+          'Quản lý tiền là quản lý cuộc đời.',
+          'Đừng dùng sức khỏe để đổi lấy tiền, rồi lại dùng tiền mua lại sức khỏe.',
+          'Thành công không phải là có bao nhiêu tiền.',
+          'Hãy hào phóng với nụ cười, nhưng chặt chẽ với chi tiêu.',
+          'Sự giàu có thực sự là những gì còn lại khi mất hết tiền.',
+          'Tiền bạc là phương tiện, không phải là cứu cánh.',
+          'Đừng lãng phí thời gian vào việc chỉ để kiếm tiền.',
+          'Học cách từ chối những ham muốn nhất thời.',
+          'Tiền bạc là năng lượng, hãy sử dụng nó đúng cách.',
+          'Đừng đặt tất cả trứng vào một giỏ. - Andrew Carnegie',
+          'Người biết quản lý tiền lẻ sẽ quản lý được tiền lớn.',
+          'Sống giản dị để người khác có thể giản dị sống.',
+          'Sự giàu có nhất là sự tự do khỏi lòng tham.',
+          'Đừng để nợ nần đè nặng đôi vai bạn.',
+          'Hãy mua những thứ giúp bạn kiếm thêm tiền.',
+          'Tiền không quan trọng, nhưng nó ảnh hưởng đến mọi thứ quan trọng.',
+          'Lòng tham là cái túi không đáy.',
+          'Tiết kiệm là con đường ngắn nhất đến sự tự do.',
+          'Hãy nghĩ về tiền như một hạt giống.',
+          'Sự giàu có thực sự bắt đầu từ bên trong.',
+          'Hãy biết ơn những gì bạn đang có.',
+          'Tiền bạc là một phần của cuộc chơi, đừng quá nghiêm trọng.',
+          'Đừng để tiền làm mờ mắt, hãy để nó soi sáng tương lai.',
+          'Quay trúng số nhỏ là thắng, quay trúng số lớn là bài học.',
+          'Tiết kiệm hôm nay là món quà cho chính bạn ngày mai.',
+          'Đừng bao giờ nản lòng nếu ví tiền còn mỏng.',
+          'Hãy tập trung vào việc tạo ra giá trị.',
+          'Sống xứng đáng với mỗi đồng tiền bạn tiêu.',
+          'Cuối cùng, chúng ta chỉ sở hữu những gì đã cho đi.',
+        ],
+      };
+
+      let simDate = new Date(2026, 0, 1);
+      let currentPlayer = 'p1';
+      let currentRotation = 0;
+      let isSpinning = false;
+      let yearlyStats = { p1: 0, p2: 0, total: 0 };
+      let historyData = Array.from({ length: 12 }, () => ({
+        total: 0,
+        p1: 0,
+        p2: 0,
+      }));
+      let fullSpinLog = [];
+      let usedNumbers = new Set();
+      let spunDays = new Set();
+      const spinBtn = document.getElementById('spinBtn');
+      function dayIdxFromDateStr(str) {
+        const d = new Date(str);
+        const base = new Date(2026, 0, 1);
+        return Math.floor((d - base) / 86400000) + 1;
+      }
+      function monthFromDayIdx(idx) {
+        const base = new Date(2026, 0, 1);
+        const d = new Date(base.getTime() + (idx - 1) * 86400000);
+        return d.getMonth();
+      }
+      function updateMissedDays() {
+        const el = document.getElementById('missed-days');
+        if (!el) return;
+        el.innerText = `Ngày chưa quay: ${365 - spunDays.size}`;
+      }
+      const QUOTES = [
+        'Một xu tiết kiệm là một xu kiếm được. - Benjamin Franklin',
+        'Đừng tiết kiệm những gì còn lại sau khi chi tiêu. - Warren Buffett',
+        'Tiền bạc là một người đầy tớ tốt, nhưng là chủ tồi. - Francis Bacon',
+        'Kẻ khôn ngoan giữ tiền trong đầu, không phải trong tim. - Jonathan Swift',
+        'Mua thứ bạn không cần, sớm muộn sẽ bán thứ bạn cần. - Warren Buffett',
+        'Quản lý tiền là 20% kiến thức và 80% là hành vi. - Dave Ramsey',
+        'Biết đủ là sự giàu có tối thượng. - Lão Tử',
+        'Thời gian là tiền bạc. - Benjamin Franklin',
+        'Càng ít ham muốn, bạn càng giàu có.',
+        'Tiền không tự mọc trên cây, nó mọc từ nỗ lực.',
+        'Đừng tiêu tiền trước khi bạn có nó. - Thomas Jefferson',
+        'Hãy cẩn thận khoản chi nhỏ; một lỗ rò bé làm đắm tàu lớn.',
+        'Tiền bạc giống như phân bón, không rải ra sẽ bốc mùi.',
+        'Đầu tư vào bản thân là khoản đầu tư lãi nhất. - Benjamin Franklin',
+        'Người giàu đầu tư thời gian, người nghèo đầu tư tiền bạc.',
+        'Nợ nần là vực thẳm không đáy.',
+        'Kẻ coi tiền là tất cả sẽ làm tất cả vì tiền.',
+        'Cái gì mua được bằng tiền, cái đó rẻ. - Erich Maria Remarque',
+        'Người đi vay là nô lệ của chủ nợ. - Kinh Thánh',
+        'Chi phí là lượng thời gian bạn đổi lấy nó. - Henry Thoreau',
+        'Đừng đặt niềm tin vào tiền, hãy đặt tiền nơi bạn tin.',
+        'Đừng để cái ví đầy làm cái đầu trống rỗng.',
+        'Sự giàu có thực sự là một tâm hồn bình an.',
+        'Tiền bạc không tạo ra ý tưởng, ý tưởng tạo ra tiền.',
+        'Thế giới đủ cho nhu cầu, nhưng không đủ cho lòng tham.',
+        'Tiết kiệm hôm nay, an nhàn ngày mai.',
+        'Đừng đuổi theo tiền, hãy đuổi theo giá trị.',
+        'Hạnh phúc không nằm ở ví tiền, mà ở sự tự do.',
+        'Đồng tiền đi trước là đồng tiền khôn.',
+        'Sống theo nhu cầu, đừng sống theo mong muốn.',
+        'Tiền mua được thuốc nhưng không mua được sức khỏe.',
+        'Mất tiền là mất ít, mất lòng tin là mất tất cả.',
+        'Đừng chết trên đống vàng mà tâm hồn nghèo nàn.',
+        'Nghèo không xấu hổ, sợ nghèo mới xấu hổ.',
+        'Sự giàu có là khả năng trải nghiệm cuộc sống trọn vẹn.',
+        'Tiền bạc mua được ngôi nhà nhưng không mua được tổ ấm.',
+        'Hãy làm chủ đồng tiền, đừng làm nô lệ.',
+        'Giá trị của một người không nằm ở tài khoản ngân hàng.',
+        'Đừng mua thứ để làm hài lòng người bạn không thích.',
+        'Ví tiền đang khóc hay đang cười là do bạn.',
+        'Mỗi đồng tiền tiết kiệm là một lá phiếu cho tương lai.',
+        'Tiết kiệm là một đức tính, chi tiêu là một thói quen.',
+        'Đừng đốt đuốc tìm tiền khi trái tim đang mục nát.',
+        'Tiền không làm thay đổi bản chất, nó chỉ bộc lộ bản chất.',
+        'Tài sản lớn nhất là sức khỏe.',
+        'Học cách quản lý tiền trước khi nó quản lý bạn.',
+        'Người giàu nhất là người có niềm vui ít tốn kém nhất.',
+        'Đừng sống để kiếm tiền, hãy kiếm tiền để sống.',
+        'Tiền chỉ là công cụ. Nó sẽ đưa bạn đến nơi bạn muốn.',
+        'Kẻ nghèo nhất là kẻ không có gì ngoài tiền.',
+        'Đừng bao giờ tiêu tiền trước khi kiếm được nó.',
+        'Bản chất của tiền là sự lưu thông.',
+        'Sự giàu có thực sự nằm ở đôi tay cho đi.',
+        'Hãy tiêu tiền vào kỷ niệm, đừng tiêu vào vật chất.',
+        'Một túi rỗng không ngăn được bạn, chỉ đầu rỗng mới làm thế.',
+        'Túi tiền càng nặng, trái tim càng phải nhẹ nhàng.',
+        'Khi túi rỗng, bạn sẽ biết ai là bạn thật sự.',
+        'Tiền bạc có cánh, hãy dạy nó bay về phía bạn.',
+        'Hãy là kiến tha lâu cũng đầy tổ.',
+        'Đừng để sự xa hoa che mờ đi mục đích sống.',
+        'Tài chính lành mạnh bắt đầu từ tâm trí lành mạnh.',
+        'Đồng tiền chân chính là mồ hôi và nước mắt.',
+        'Đừng nhìn vào giá cả, hãy nhìn vào giá trị lâu dài.',
+        'Một ngày không tiết kiệm là một ngày lãng phí.',
+        'Đừng so sánh ví tiền của mình với người khác.',
+        'Hạnh phúc là biết mình có đủ.',
+        'Tiết kiệm là bí mật của sự độc lập tài chính.',
+        'Đừng để tiền bạc là rào cản giữa bạn và những người thân yêu.',
+        'Sự giàu có đích thực không thể đong đếm bằng con số.',
+        'Hãy trân trọng từng đồng lẻ bạn có.',
+        'Đồng tiền là một công cụ, không phải là ông chủ.',
+        'Quản lý tiền là quản lý cuộc đời.',
+        'Đừng dùng sức khỏe để đổi lấy tiền, rồi lại dùng tiền mua lại sức khỏe.',
+        'Thành công không phải là có bao nhiêu tiền.',
+        'Hãy hào phóng với nụ cười, nhưng chặt chẽ với chi tiêu.',
+        'Sự giàu có thực sự là những gì còn lại khi mất hết tiền.',
+        'Tiền bạc là phương tiện, không phải là cứu cánh.',
+        'Đừng lãng phí thời gian vào việc chỉ để kiếm tiền.',
+        'Học cách từ chối những ham muốn nhất thời.',
+        'Tiền bạc là năng lượng, hãy sử dụng nó đúng cách.',
+        'Đừng đặt tất cả trứng vào một giỏ. - Andrew Carnegie',
+        'Người biết quản lý tiền lẻ sẽ quản lý được tiền lớn.',
+        'Sống giản dị để người khác có thể giản dị sống.',
+        'Sự giàu có nhất là sự tự do khỏi lòng tham.',
+        'Đừng để nợ nần đè nặng đôi vai bạn.',
+        'Hãy mua những thứ giúp bạn kiếm thêm tiền.',
+        'Tiền không quan trọng, nhưng nó ảnh hưởng đến mọi thứ quan trọng.',
+        'Lòng tham là cái túi không đáy.',
+        'Tiết kiệm là con đường ngắn nhất đến sự tự do.',
+        'Hãy nghĩ về tiền như một hạt giống.',
+        'Sự giàu có thực sự bắt đầu từ bên trong.',
+        'Hãy biết ơn những gì bạn đang có.',
+        'Tiền bạc là một phần của cuộc chơi, đừng quá nghiêm trọng.',
+        'Đừng để tiền làm mờ mắt, hãy để nó soi sáng tương lai.',
+        'Quay trúng số nhỏ là thắng, quay trúng số lớn là bài học.',
+        'Tiết kiệm hôm nay là món quà cho chính bạn ngày mai.',
+        'Đừng bao giờ nản lòng nếu ví tiền còn mỏng.',
+        'Hãy tập trung vào việc tạo ra giá trị.',
+        'Sống xứng đáng với mỗi đồng tiền bạn tiêu.',
+        'Cuối cùng, chúng ta chỉ sở hữu những gì đã cho đi.',
+      ];
+      function setRandomQuote() {
+        const el = document.getElementById('quote-area');
+        if (!el) return;
+        const q = getRandomQuotes();
+        el.innerText = q;
+      }
+
+      function getRandomQuotes() {
+        return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      }
+
+      function showLoading(show) {
+        const loader = document.getElementById('loading-overlay');
+        if (show) {
+          loader.classList.remove('hidden');
+          loader.classList.add('flex');
+        } else {
+          loader.classList.add('hidden');
+          loader.classList.remove('flex');
         }
-        
-        let preGeneratedNumbers = [
-            { date: "2025-02-12", dayCount: 43, number: 86, turnCount: 1, user: "Bà" },
-            { date: "2025-02-12", dayCount: 43, number: 360, turnCount: 2, user: "Ông" },
-            { date: "2025-02-13", dayCount: 44, number: 348, turnCount: 3, user: "Bà" },
-            { date: "2025-02-13", dayCount: 44, number: 13, turnCount: 4, user: "Ông" },
-            { date: "2025-02-14", dayCount: 45, number: 85, turnCount: 5, user: "Bà" },
-            { date: "2025-02-14", dayCount: 45, number: 226, turnCount: 6, user: "Ông" },
-            { date: "2025-02-15", dayCount: 46, number: 87, turnCount: 7, user: "Bà" },
-            { date: "2025-02-15", dayCount: 46, number: 320, turnCount: 8, user: "Ông" },
-            { date: "2025-02-16", dayCount: 47, number: 102, turnCount: 9, user: "Bà" },
-            { date: "2025-02-16", dayCount: 47, number: 107, turnCount: 10, user: "Ông" },
-            { date: "2025-02-17", dayCount: 48, number: 327, turnCount: 11, user: "Bà" },
-            { date: "2025-02-17", dayCount: 48, number: 125, turnCount: 12, user: "Ông" },
-            { date: "2025-02-18", dayCount: 49, number: 1, turnCount: 13, user: "Bà" },
-            { date: "2025-02-18", dayCount: 49, number: 188, turnCount: 14, user: "Ông" },
-            { date: "2025-02-19", dayCount: 50, number: 21, turnCount: 15, user: "Bà" },
-            { date: "2025-02-19", dayCount: 50, number: 104, turnCount: 16, user: "Ông" },
-            { date: "2025-02-20", dayCount: 51, number: 47, turnCount: 17, user: "Bà" },
-            { date: "2025-02-20", dayCount: 51, number: 45, turnCount: 18, user: "Ông" },
-            { date: "2025-02-21", dayCount: 52, number: 186, turnCount: 19, user: "Bà" },
-            { date: "2025-02-21", dayCount: 52, number: 284, turnCount: 20, user: "Ông" },
-            { date: "2025-02-22", dayCount: 53, number: 95, turnCount: 21, user: "Bà" },
-            { date: "2025-02-22", dayCount: 53, number: 62, turnCount: 22, user: "Ông" },
-            { date: "2025-02-23", dayCount: 54, number: 40, turnCount: 23, user: "Bà" },
-            { date: "2025-02-23", dayCount: 54, number: 343, turnCount: 24, user: "Ông" },
-            { date: "2025-02-24", dayCount: 55, number: 67, turnCount: 25, user: "Bà" },
-            { date: "2025-02-24", dayCount: 55, number: 209, turnCount: 26, user: "Ông" },
-            { date: "2025-02-25", dayCount: 56, number: 116, turnCount: 27, user: "Bà" },
-            { date: "2025-02-25", dayCount: 56, number: 30, turnCount: 28, user: "Ông" },
-            { date: "2025-02-26", dayCount: 57, number: 43, turnCount: 29, user: "Bà" },
-            { date: "2025-02-26", dayCount: 57, number: 196, turnCount: 30, user: "Ông" },
-            { date: "2025-02-27", dayCount: 58, number: 158, turnCount: 31, user: "Bà" },
-            { date: "2025-02-27", dayCount: 58, number: 117, turnCount: 32, user: "Ông" },
-            { date: "2025-02-28", dayCount: 59, number: 141, turnCount: 33, user: "Bà" },
-            { date: "2025-02-28", dayCount: 59, number: 212, turnCount: 34, user: "Ông" },
-            { date: "2025-03-01", dayCount: 60, number: 198, turnCount: 35, user: "Bà" },
-            { date: "2025-03-01", dayCount: 60, number: 148, turnCount: 36, user: "Ông" },
-            { date: "2025-03-02", dayCount: 61, number: 237, turnCount: 37, user: "Bà" },
-            { date: "2025-03-02", dayCount: 61, number: 252, turnCount: 38, user: "Ông" },
-            { date: "2025-03-03", dayCount: 62, number: 21, turnCount: 39, user: "Bà" },
-            { date: "2025-03-03", dayCount: 62, number: 170, turnCount: 40, user: "Ông" },
-            { date: "2025-03-04", dayCount: 63, number: 51, turnCount: 41, user: "Bà" },
-            { date: "2025-03-04", dayCount: 63, number: 288, turnCount: 42, user: "Ông" },
-            { date: "2025-03-05", dayCount: 64, number: 161, turnCount: 43, user: "Bà" },
-            { date: "2025-03-05", dayCount: 64, number: 65, turnCount: 44, user: "Ông" },
-            { date: "2025-03-06", dayCount: 65, number: 191, turnCount: 45, user: "Bà" },
-            { date: "2025-03-06", dayCount: 65, number: 142 , turnCount: 46, user: "Ông" },
-            { date: "2025-03-07", dayCount: 66, number: 33 , turnCount: 47, user: "Bà" },
-            { date: "2025-03-07", dayCount: 66, number: 207 , turnCount: 48, user: "Ông" }
-            
+      }
+
+      async function syncToCloud() {
+        const payload = {
+          simDate: simDate.toISOString(),
+          currentPlayer,
+          yearlyStats,
+          historyData,
+          fullSpinLog,
+          swapStatus,
+          playerNames,
+          usedNumbers: Array.from(usedNumbers),
+        };
+        try {
+          localStorage.setItem('github_wheel_data', JSON.stringify(payload));
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload),
+          });
+        } catch (error) {
+          console.error('Lỗi đồng bộ:', error);
+        }
+      }
+      function animateNumber(finalNumber, duration) {
+        const el = document.getElementById('result-number');
+        let startTimestamp = null;
+        const step = (timestamp) => {
+          if (!startTimestamp) startTimestamp = timestamp;
+          const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+          el.innerText = Math.floor(progress * finalNumber);
+          if (progress < 1) {
+            window.requestAnimationFrame(step);
+          }
+        };
+        window.requestAnimationFrame(step);
+      }
+
+      // Cách dùng: Gọi animateNumber(luckyNum, 1000) bên trong setTimeout của spin()
+      async function loadFromCloud() {
+        showLoading(true);
+        try {
+          const response = await fetch(GOOGLE_SCRIPT_URL);
+          const data = await response.json();
+          if (data) {
+            simDate = new Date(data.simDate);
+            currentPlayer = data.currentPlayer;
+            yearlyStats = data.yearlyStats;
+            historyData = data.historyData;
+            fullSpinLog = data.fullSpinLog || [];
+            if (data.swapStatus) swapStatus = data.swapStatus;
+            if (data.playerNames) playerNames = data.playerNames;
+            usedNumbers = new Set(fullSpinLog.map((l) => l.score));
+            rebuildUI();
+            if (typeof updateChart === 'function') updateChart();
+            setRandomQuote();
+          }
+        } catch (error) {
+          loadData();
+        } finally {
+          setTimeout(() => showLoading(false), 500);
+        }
+      }
+
+      function loadData() {
+        try {
+          const saved = localStorage.getItem('github_wheel_data');
+          if (!saved) return;
+          const data = JSON.parse(saved);
+          simDate = new Date(data.simDate);
+          currentPlayer = data.currentPlayer;
+          yearlyStats = data.yearlyStats;
+          historyData = data.historyData;
+          fullSpinLog = data.fullSpinLog || [];
+          if (data.swapStatus) swapStatus = data.swapStatus;
+          if (data.playerNames) playerNames = data.playerNames;
+          usedNumbers = new Set(fullSpinLog.map((l) => l.score));
+          rebuildUI();
+          if (typeof updateChart === 'function') updateChart();
+          setRandomQuote();
+        } catch (e) {}
+      }
+
+      function editPlayerName(p) {
+        const newName = prompt(
+          `Nhập tên mới cho ${playerNames[p]}:`,
+          playerNames[p]
+        );
+        if (newName && newName.trim() !== '') {
+          playerNames[p] = newName.trim();
+          updateUI();
+          syncToCloud();
+          if (monthlyChart) {
+            monthlyChart.data.datasets[0].label = playerNames.p1;
+            monthlyChart.data.datasets[1].label = playerNames.p2;
+            monthlyChart.update();
+          }
+        }
+      }
+
+      function updateUI() {
+        const t = document.getElementById('turn-display');
+        const sBtn = document.getElementById('swapBtn');
+        const m = simDate.getMonth();
+
+        const pName = currentPlayer === 'p1' ? playerNames.p1 : playerNames.p2;
+        const pIcon = currentPlayer === 'p1' ? '●' : '▲';
+
+        const randomPrefix =
+          UI_TEXTS.turns[Math.floor(Math.random() * UI_TEXTS.turns.length)];
+
+        t.innerHTML = `<span class="text-[9px] block opacity-50 tracking-[0.2em] mb-1">${randomPrefix}</span>
+                       <span class="text-2xl">${pName} ${pIcon}</span>`;
+
+        t.className = `font-black uppercase tracking-tighter text-center transition-all duration-500 ${
+          currentPlayer === 'p1' ? 'text-indigo-400' : 'text-emerald-400'
+        }`;
+
+        // --- THÊM ĐOẠN NÀY ĐỂ CẬP NHẬT TÊN TRONG CÁC THÁNG ---
+        document
+          .querySelectorAll('.p1-label-text')
+          .forEach((el) => (el.innerText = playerNames.p1));
+        document
+          .querySelectorAll('.p2-label-text')
+          .forEach((el) => (el.innerText = playerNames.p2));
+        document.getElementById('label-p1').innerText = `${playerNames.p1}`;
+        document.getElementById('label-p2').innerText = `${playerNames.p2}`;
+        // ---------------------------------------------------
+
+        if (sBtn) {
+          const otherPlayer =
+            currentPlayer === 'p1' ? playerNames.p2 : playerNames.p1;
+          if (swapStatus[m][currentPlayer]) {
+            sBtn.innerText = 'Tháng này hết quyền đổi rồi';
+            sBtn.classList.add('opacity-30', 'pointer-events-none');
+          } else {
+            sBtn.innerText = `⇄ Nhường sân cho ${otherPlayer}`;
+            sBtn.classList.remove('opacity-30', 'pointer-events-none');
+          }
+        }
+
+        const sBtnCenter = document.getElementById('spinBtn');
+        if (sBtnCenter && !isSpinning) {
+          const randomBtnText =
+            UI_TEXTS.spinButtons[
+              Math.floor(Math.random() * UI_TEXTS.spinButtons.length)
+            ];
+          sBtnCenter.innerText = randomBtnText;
+
+          // Mẹo: Đổi màu chữ nút quay theo người chơi để dễ nhận diện
+          sBtnCenter.style.color =
+            currentPlayer === 'p1' ? '#6366f1' : '#10b981';
+        }
+
+        // Cập nhật các câu nhãn tên trong bảng tháng (như đã hướng dẫn ở bước trước)
+        document
+          .querySelectorAll('.p1-label-text')
+          .forEach((el) => (el.innerText = playerNames.p1));
+        document
+          .querySelectorAll('.p2-label-text')
+          .forEach((el) => (el.innerText = playerNames.p2));
+      }
+      function swapTurn() {
+        const m = simDate.getMonth();
+        const originalPlayer = currentPlayer;
+        if (swapStatus[m][originalPlayer]) return;
+
+        const oldName = playerNames[originalPlayer];
+        swapStatus[m][originalPlayer] = true;
+        currentPlayer = originalPlayer === 'p1' ? 'p2' : 'p1';
+        const newName = playerNames[currentPlayer];
+
+        // Lấy ngẫu nhiên một câu nối
+        const randomSwapAction =
+          UI_TEXTS.swaps[Math.floor(Math.random() * UI_TEXTS.swaps.length)];
+        const msgEl = document.getElementById('swap-msg');
+
+        if (msgEl) {
+          msgEl.innerText = `${oldName} ${randomSwapAction} ${newName}! ✨`;
+          setTimeout(() => (msgEl.innerText = ''), 4000);
+        }
+
+        updateUI();
+        saveData();
+        syncToCloud();
+      }
+      function renderSpinToUI(dayIdx, m, player, score, color, isNew = true) {
+        const cell = document.getElementById(`day-${dayIdx}`);
+        if (cell) {
+          const s = document.createElement('div');
+          s.className = `shape ${
+            player === 'p1' ? 'shape-circle' : 'shape-triangle'
+          }`;
+          player === 'p1'
+            ? (s.style.backgroundColor = color)
+            : (s.style.color = color);
+          cell.appendChild(s);
+        }
+        if (isNew) {
+          const hList = document.getElementById('history-list');
+          const hItem = document.createElement('div');
+          hItem.className = 'history-item';
+          hItem.style.borderLeft = `3px solid ${color}`;
+          const pLabel =
+            player === 'p1' ? `${playerNames.p1} ●` : `${playerNames.p2} ▲`;
+          const base = new Date(2026, 0, 1);
+          const d = new Date(base.getTime() + (dayIdx - 1) * 86400000);
+          const mm = d.getMonth() + 1;
+          const dd = d.getDate();
+          hItem.innerHTML = `<span>${dd}/${mm}</span> <span>${pLabel}</span> <b>+${score}</b>`;
+          hList.prepend(hItem);
+        }
+      }
+
+      function initChart() {
+        const ctxChart = document
+          .getElementById('monthlyChart')
+          .getContext('2d');
+        const labels = [
+          'T1',
+          'T2',
+          'T3',
+          'T4',
+          'T5',
+          'T6',
+          'T7',
+          'T8',
+          'T9',
+          'T10',
+          'T11',
+          'T12',
+          'NĂM',
         ];
-        
-        let logEntries = [];
-        let createdNumbers = [];
-        let totalSum = 0;
-        let createdNumbersCount = 0;
-        let globalTurnCount = 0;
-        
-        // Add function to load data from localStorage
-        function loadFromLocalStorage() {
-            const savedData = localStorage.getItem('piggyBankData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                logEntries = data.logEntries;
-                createdNumbers = data.createdNumbers;
-                totalSum = data.totalSum;
-                createdNumbersCount = data.createdNumbersCount;
-                globalTurnCount = data.globalTurnCount;
-            } else {
-                // Initialize with pre-generated data if no saved data exists
-                logEntries = [...preGeneratedNumbers];
-                createdNumbers = [];
-                totalSum = logEntries.reduce((sum, entry) => sum + entry.number, 0);
-                createdNumbersCount = logEntries.length;
-                globalTurnCount = createdNumbersCount;
-                saveToLocalStorage();
-            }
-        }
-
-        // Add function to save data to localStorage
-        function saveToLocalStorage() {
-            const dataToSave = {
-                logEntries,
-                createdNumbers,
-                totalSum,
-                createdNumbersCount,
-                globalTurnCount
-            };
-            localStorage.setItem('piggyBankData', JSON.stringify(dataToSave));
-        }
-
-        function checkButtonAvailability() {
-            let today = new Date().toISOString().split('T')[0];
-            let turnsToday = logEntries.filter(entry => entry.date === today).length;
-            let dayCount = Math.floor((new Date(today) - startDate) / (1000 * 60 * 60 * 24)) + 1;
-            let maxTurns = createdNumbersCount < dayCount ? 2 : 1;
-            
-            let button = document.getElementById("generateButton");
-            if (turnsToday >= maxTurns) {
-                button.disabled = true;
-                button.title = "Đã hết lượt tạo số hôm nay";
-            } else {
-                button.disabled = false;
-                button.title = "";
-            }
-        }
-
-        function generateRandomNumbers() {
-            let selectedUser = document.querySelector('input[name="userSelect"]:checked').value;
-            let today = new Date().toISOString().split('T')[0];
-            let todayDate = new Date(today);
-            let dayCount = Math.floor((todayDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-            let turnsToday = logEntries.filter(entry => entry.date === today).length;
-            
-            let maxTurns = createdNumbersCount < dayCount ? 2 : 1;
-            if (turnsToday >= maxTurns) {
-                checkButtonAvailability();
-                return;
-            }
-            
-            let newNumber = Math.floor(Math.random() * 365) + 1;
-            totalSum += newNumber;
-            createdNumbersCount++;
-            globalTurnCount++;
-            
-            let newEntry = { 
-                date: today, 
-                number: newNumber, 
-                dayCount, 
-                turnCount: globalTurnCount,
-                user: selectedUser
-            };
-            
-            logEntries.unshift(newEntry);
-            createdNumbers.unshift(newEntry);
-            
-            updateLog();
-            updateCreatedNumbers();
-            updateNumberGrid();
-            updateMonthlyChart();
-            checkButtonAvailability();
-            saveToLocalStorage();
-        }
-        
-        function updateLog() {
-            logEntries.sort((a, b) => b.turnCount - a.turnCount);
-            let logEntriesBody = document.getElementById("logEntriesBody");
-            logEntriesBody.innerHTML = "";
-            
-            let anhSum = 0;
-            let emSum = 0;
-            
-            logEntries.forEach(entry => {
-                let row = document.createElement("tr");
-                row.innerHTML = `
-                    <td data-label="Ngày" class="date-cell">${entry.date}</td>
-                    <td data-label="Số tiền">
-                        <span class="money-amount">${formatNumber(entry.number)}.000 đ</span>
-                    </td>
-                    <td data-label="Ngày (Từ đầu năm)">
-                        <span class="day-number">Ngày ${entry.dayCount}</span>
-                    </td>
-                    <td data-label="Số lượt">
-                        <span class="turn-number">${entry.turnCount}</span>
-                    </td>
-                    <td data-label="Người góp" class="user-cell ${entry.user === "Ông" ? 'user-ong' : 'user-ba'}">
-                        ${entry.user}
-                    </td>
-                `;
-                logEntriesBody.appendChild(row);
-                
-                if (entry.user === "Ông") {
-                    anhSum += entry.number;
-                } else {
-                    emSum += entry.number;
-                }
-            });
-            
-            document.getElementById("totalSum").innerHTML = `
-                <div><strong class="user-ong">Ông (Ô):</strong> <span class="money-amount">${formatNumber(anhSum)}.000 đ</span></div>
-                <div><strong class="user-ba">Bà (B):</strong> <span class="money-amount">${formatNumber(emSum)}.000 đ</span></div>
-                <div style="margin-top: 8px; font-size: 18px;">
-                    <strong>Tổng số:</strong> 
-                    <span class="money-amount" style="font-size: 18px;">${formatNumber(totalSum)}.000 đ</span>
-                </div>
-            `;
-        }
-        
-        function updateCreatedNumbers() {
-            let createdNumbersBody = document.getElementById("createdNumbersBody");
-            createdNumbersBody.innerHTML = "";
-            
-            createdNumbers.forEach(entry => {
-                let row = document.createElement("tr");
-                row.innerHTML = `
-                    <td data-label="Ngày" class="date-cell">${entry.date}</td>
-                    <td data-label="Số tiền">
-                        <span class="money-amount">${formatNumber(entry.number)}.000 đ</span>
-                    </td>
-                `;
-                createdNumbersBody.appendChild(row);
-            });
-        }
-        
-        function getNumberLevel(number) {
-            if (number <= 73) return 1;
-            if (number <= 146) return 2;
-            if (number <= 219) return 3;
-            if (number <= 292) return 4;
-            return 5;
-        }
-
-        let showBadges = true;
-
-        function toggleBadges() {
-            showBadges = !showBadges;
-            const button = document.getElementById('toggleBadges');
-            
-            if (showBadges) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
-            
-            updateNumberGrid(); // Update the entire grid to switch color schemes
-        }
-
-        function updateNumberGrid() {
-            const anhCounts = new Map();
-            const emCounts = new Map();
-            
-            logEntries.forEach(entry => {
-                if (entry.user === "Ông") {
-                    const count = anhCounts.get(entry.number) || 0;
-                    anhCounts.set(entry.number, count + 1);
-                } else {
-                    const count = emCounts.get(entry.number) || 0;
-                    emCounts.set(entry.number, count + 1);
-                }
-            });
-            
-            const cells = document.querySelectorAll('.grid-cell');
-            cells.forEach(cell => {
-                const number = parseInt(cell.textContent);
-                // Remove all existing classes
-                cell.classList.remove(
-                    'level-1', 'level-2', 'level-3', 'level-4', 'level-5',
-                    'anh-color', 'em-color', 'both-color'
-                );
-                
-                // Remove existing badges
-                const existingBadges = cell.querySelectorAll('.number-badge');
-                existingBadges.forEach(badge => cell.removeChild(badge));
-                
-                const hasAnh = anhCounts.has(number);
-                const hasEm = emCounts.has(number);
-                
-                if (hasAnh || hasEm) {
-                    // Add background color based on users if badges are shown
-                    if (showBadges) {
-                        if (hasAnh && hasEm) {
-                            cell.classList.add('both-color');
-                        } else if (hasAnh) {
-                            cell.classList.add('anh-color');
-                        } else {
-                            cell.classList.add('em-color');
-                        }
-                    } else {
-                        // Use regular level colors when badges are hidden
-                        const level = getNumberLevel(number);
-                        cell.classList.add(`level-${level}`);
-                    }
-                    
-                    // Add Anh badge (right side, pink, "Ô")
-                    if (hasAnh) {
-                        const anhBadge = document.createElement('div');
-                        anhBadge.className = 'number-badge anh' + (showBadges ? '' : ' hidden');
-                        anhBadge.textContent = 'Ô';
-                        cell.appendChild(anhBadge);
-                    }
-                    
-                    // Add Em badge (left side, blue, "B")
-                    if (hasEm) {
-                        const emBadge = document.createElement('div');
-                        emBadge.className = 'number-badge em' + (showBadges ? '' : ' hidden');
-                        emBadge.textContent = 'B';
-                        cell.appendChild(emBadge);
-                    }
-                }
-            });
-        }
-
-        function createNumberGrid() {
-            let container = document.getElementById("numberGridContainer");
-            container.innerHTML = "";
-            container.className = "grid-table"; // Add grid-table class directly to container
-            
-            for (let i = 1; i <= 365; i++) {
-                let cell = document.createElement("div");
-                cell.className = "grid-cell";
-                cell.textContent = i;
-                container.appendChild(cell);
-            }
-            
-            updateNumberGrid();
-        }
-        
-        function formatNumber(number) {
-            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-
-        function updateMonthlyChart() {
-            const monthlyData = new Map();
-            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 
-                              'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
-            
-            // Initialize monthly data
-            logEntries.forEach(entry => {
-                const date = new Date(entry.date);
-                const monthKey = date.getMonth();
-                
-                if (!monthlyData.has(monthKey)) {
-                    monthlyData.set(monthKey, {
-                        total: 0,
-                        ong: 0,
-                        ba: 0,
-                        count: 0
-                    });
-                }
-                
-                const monthData = monthlyData.get(monthKey);
-                monthData.total += entry.number;
-                monthData.count += 1;
-                if (entry.user === "Ông") {
-                    monthData.ong += entry.number;
-                } else {
-                    monthData.ba += entry.number;
-                }
-            });
-
-            // Find max value for scaling
-            const maxTotal = Math.max(...Array.from(monthlyData.values()).map(d => d.total));
-            
-            // Generate chart HTML
-            const chartContent = document.getElementById('monthlyChartContent');
-            chartContent.innerHTML = '';
-            
-            monthlyData.forEach((data, month) => {
-                const percentage = (data.total / maxTotal) * 100;
-                const monthDiv = document.createElement('div');
-                monthDiv.className = 'month-bar';
-                monthDiv.innerHTML = `
-                    <div class="month-bar-label">
-                        <span class="month-name">${monthNames[month]}</span>
-                        <span class="month-total">${formatNumber(data.total)}.000 đ</span>
-                    </div>
-                    <div class="month-bar-progress">
-                        <div class="month-bar-fill" style="width: ${percentage}%"></div>
-                    </div>
-                    <div class="month-details">
-                        <div class="month-detail-item">
-                            <span class="month-detail-value">${formatNumber(data.ong)}.000 đ</span>
-                            <span class="month-detail-label">Ông</span>
-                        </div>
-                        <div class="month-detail-item">
-                            <span class="month-detail-value">${data.count}</span>
-                            <span class="month-detail-label">Lượt</span>
-                        </div>
-                        <div class="month-detail-item">
-                            <span class="month-detail-value">${formatNumber(data.ba)}.000 đ</span>
-                            <span class="month-detail-label">Bà</span>
-                        </div>
-                    </div>
-                `;
-                chartContent.appendChild(monthDiv);
-            });
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            loadFromLocalStorage();
-            checkButtonAvailability();
-            logEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
-            updateLog();
-            updateCreatedNumbers();
-            createNumberGrid();
-            updateMonthlyChart();
-            
-            document.getElementById('toggleBadges').addEventListener('click', toggleBadges);
+        monthlyChart = new Chart(ctxChart, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: playerNames.p1,
+                data: [],
+                backgroundColor: '#6366f1',
+                borderRadius: 2,
+              },
+              {
+                label: playerNames.p2,
+                data: [],
+                backgroundColor: '#10b981',
+                borderRadius: 2,
+              },
+              {
+                label: 'Tổng tháng',
+                data: [],
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+                borderWidth: 1,
+                borderRadius: 2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: '#94a3b8', font: { size: 9 } } },
+            },
+            scales: {
+              y: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#64748b' },
+              },
+              x: { grid: { display: false }, ticks: { color: '#64748b' } },
+            },
+          },
         });
+      }
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/tien-duong-gia/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
+      function updateChart() {
+        if (!monthlyChart) return;
+        const mA = [...historyData.map((d) => d.p1), yearlyStats.p1];
+        const mB = [...historyData.map((d) => d.p2), yearlyStats.p2];
+        const mS = [...historyData.map((d) => d.total), yearlyStats.total];
+        monthlyChart.data.datasets[0].data = mA;
+        monthlyChart.data.datasets[1].data = mB;
+        monthlyChart.data.datasets[2].data = mS;
+        monthlyChart.data.datasets[0].label = playerNames.p1;
+        monthlyChart.data.datasets[1].label = playerNames.p2;
+        monthlyChart.update();
+      }
+
+      function spin() {
+        if (isSpinning) return;
+
+        // 1. Ẩn số cũ và chuẩn bị trạng thái
+        const display = document.getElementById('lucky-number-display');
+        if (display) display.classList.replace('scale-100', 'scale-0');
+
+        isSpinning = true;
+        spinBtn.disabled = true;
+
+        const dayIdxNow =
+          Math.floor((simDate - new Date(2026, 0, 1)) / 86400000) + 1;
+        if (spunDays.has(dayIdxNow)) {
+          isSpinning = false;
+          spinBtn.disabled = false;
+          const quoteArea = document.getElementById('quote-area');
+          if (quoteArea) {
+            quoteArea.innerText =
+              'Ngày này đã quay rồi. Chuyển sang ngày mới để tiếp tục.';
+          }
+          return;
         }
+
+        // 2. Tính toán con số may mắn
+        const avail = [];
+        for (let i = 1; i <= 365; i++) if (!usedNumbers.has(i)) avail.push(i);
+        if (avail.length === 0) {
+          isSpinning = false;
+          spinBtn.disabled = false;
+          return;
+        }
+        const luckyNum = avail[Math.floor(Math.random() * avail.length)];
+        const targetAngle = (360 - (luckyNum - 1) * (360 / 365) + 270) % 360;
+        currentRotation += 360 * 4 + targetAngle - (currentRotation % 360);
+
+        // 3. Thực hiện quay vòng quay
+        document.getElementById(
+          'wheelCanvas'
+        ).style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+          isSpinning = false;
+          spinBtn.disabled = false;
+          // Thêm vào trong setTimeout của hàm spin() đoạn cập nhật màu shadow cho display số
+          const resultBox = document.getElementById('lucky-number-display');
+          const color = getCustomColor(luckyNum);
+          if (resultBox) {
+            resultBox.style.boxShadow = `0 0 40px ${color}`; // Đổ bóng theo màu vùng vừa quay trúng
+            resultBox.style.border = `3px solid ${color}`;
+          }
+          const m = simDate.getMonth();
+          const dayIdx = dayIdxNow;
+
+          // 4. Hiển thị con số may mắn ngay giữa vòng quay
+          if (display) {
+            display.classList.replace('scale-0', 'scale-100');
+            animateNumber(luckyNum, 1000); // Hiệu ứng số nhảy trong 1 giây
+          }
+
+          // 5. Cập nhật dữ liệu Log và Thống kê
+          historyData[m].total += luckyNum;
+          historyData[m][currentPlayer] += luckyNum;
+          yearlyStats.total += luckyNum;
+          yearlyStats[currentPlayer] += luckyNum;
+
+          // 6. Ghi log trước khi rebuild UI
+          fullSpinLog.push({
+            dayIdx,
+            m,
+            player: currentPlayer,
+            score: luckyNum,
+            color,
+          });
+          usedNumbers.add(luckyNum);
+          spunDays.add(dayIdx);
+
+          // 7. Cập nhật Giao diện
+          renderSpinToUI(dayIdx, m, currentPlayer, luckyNum, color, true);
+          rebuildUI();
+          updateChart();
+
+          let messageList;
+          let textColor;
+          let animationClass;
+
+          if (luckyNum <= 60) {
+            messageList = UI_TEXTS.spinMessages.v1;
+            textColor = 'text-emerald-400 font-black animate-bounce';
+          } else if (luckyNum <= 120) {
+            messageList = UI_TEXTS.spinMessages.v2;
+            textColor = 'text-lime-400 font-bold';
+          } else if (luckyNum <= 180) {
+            messageList = UI_TEXTS.spinMessages.v3;
+            textColor = 'text-yellow-400';
+          } else if (luckyNum <= 240) {
+            messageList = UI_TEXTS.spinMessages.v4;
+            textColor = 'text-orange-500 font-bold';
+          } else if (luckyNum <= 300) {
+            messageList = UI_TEXTS.spinMessages.v5;
+            textColor = 'text-red-500 font-bold italic animate-pulse';
+          } else {
+            messageList = UI_TEXTS.spinMessages.v6;
+            textColor =
+              'text-red-600 font-black uppercase italic animate-shake drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]';
+          }
+
+          const randomMsgTemplate =
+            messageList[Math.floor(Math.random() * messageList.length)];
+          const finalMsg = randomMsgTemplate.replace('{n}', luckyNum);
+
+          const quoteArea = document.getElementById('quote-area');
+          if (quoteArea) {
+            quoteArea.className = `text-[10px] mb-4 h-10 flex items-center justify-center text-center transition-all rounded-lg ${animationClass}`;
+            quoteArea.innerHTML = `<span class="${textColor}">${finalMsg}</span>`;
+          }
+
+          // 8. Đổi lượt và đồng bộ Cloud
+          currentPlayer = currentPlayer === 'p1' ? 'p2' : 'p1';
+          syncToCloud();
+          updateUI();
+
+          // 9. Tự động ẩn số sau 4 giây để chuẩn bị cho lượt tiếp theo
+          setTimeout(() => {
+            if (display) display.classList.replace('scale-100', 'scale-0');
+          }, 4000);
+        }, 4000); // Khớp với thời gian transition của CSS vòng quay
+      }
+      function spinBackfill() {
+        const input = document.getElementById('backfill-date');
+        if (!input || !input.value) return;
+        const dayIdx = dayIdxFromDateStr(input.value);
+        if (dayIdx < 1 || dayIdx > 365) return;
+        if (spunDays.has(dayIdx)) {
+          const quoteArea = document.getElementById('quote-area');
+          if (quoteArea)
+            quoteArea.innerText = 'Ngày này đã quay rồi, chọn ngày khác.';
+          return;
+        }
+        if (isSpinning) return;
+        const display = document.getElementById('lucky-number-display');
+        if (display) display.classList.replace('scale-100', 'scale-0');
+        isSpinning = true;
+        spinBtn.disabled = true;
+        const avail = [];
+        for (let i = 1; i <= 365; i++) if (!usedNumbers.has(i)) avail.push(i);
+        if (avail.length === 0) {
+          isSpinning = false;
+          spinBtn.disabled = false;
+          return;
+        }
+        const luckyNum = avail[Math.floor(Math.random() * avail.length)];
+        const targetAngle = (360 - (luckyNum - 1) * (360 / 365) + 270) % 360;
+        currentRotation += 360 * 4 + targetAngle - (currentRotation % 360);
+        document.getElementById(
+          'wheelCanvas'
+        ).style.transform = `rotate(${currentRotation}deg)`;
+        setTimeout(() => {
+          isSpinning = false;
+          spinBtn.disabled = false;
+          const resultBox = document.getElementById('lucky-number-display');
+          const color = getCustomColor(luckyNum);
+          if (resultBox) {
+            resultBox.style.boxShadow = `0 0 40px ${color}`;
+            resultBox.style.border = `3px solid ${color}`;
+          }
+          const m = monthFromDayIdx(dayIdx);
+          if (display) {
+            display.classList.replace('scale-0', 'scale-100');
+            animateNumber(luckyNum, 1000);
+          }
+          historyData[m].total += luckyNum;
+          historyData[m][currentPlayer] += luckyNum;
+          yearlyStats.total += luckyNum;
+          yearlyStats[currentPlayer] += luckyNum;
+          fullSpinLog.push({
+            dayIdx,
+            m,
+            player: currentPlayer,
+            score: luckyNum,
+            color,
+          });
+          usedNumbers.add(luckyNum);
+          spunDays.add(dayIdx);
+          renderSpinToUI(dayIdx, m, currentPlayer, luckyNum, color, true);
+          rebuildUI();
+          updateChart();
+          currentPlayer = currentPlayer === 'p1' ? 'p2' : 'p1';
+          syncToCloud();
+          updateUI();
+          setTimeout(() => {
+            if (display) display.classList.replace('scale-100', 'scale-0');
+          }, 4000);
+        }, 4000);
+      }
+      function createVerticalGraph() {
+        const container = document.getElementById('vertical-graph-container');
+        const months = [
+          'Tháng 1',
+          'Tháng 2',
+          'Tháng 3',
+          'Tháng 4',
+          'Tháng 5',
+          'Tháng 6',
+          'Tháng 7',
+          'Tháng 8',
+          'Tháng 9',
+          'Tháng 10',
+          'Tháng 11',
+          'Tháng 12',
+        ];
+        let dayIdx = 1;
+        for (let m = 0; m < 12; m++) {
+          const block = document.createElement('div');
+          block.className = 'month-block is-collapsed';
+          block.id = `month-section-${m}`;
+
+          // Sửa dòng dưới đây để dùng playerNames.p1 và playerNames.p2
+          block.innerHTML = `
+            <div class="month-header" onclick="toggleSection('month-section-${m}')">
+              <div class="flex items-center gap-3">
+                <h3 class="month-title text-emerald-500">${months[m]}</h3>
+                <div class="stat-summary">
+                  <span>Σ <b id="sum-m-${m}">0</b></span>
+                  <span><span class="p1-label-text">${playerNames.p1}</span>: <b id="ap-m-${m}">0</b></span>
+                  <span><span class="p2-label-text">${playerNames.p2}</span>: <b id="bp-m-${m}">0</b></span>
+                </div>
+              </div>
+            </div>
+            <div class="collapse-content">
+              <div class="month-grid" id="grid-m-${m}"></div>
+            </div>`;
+
+          const grid = block.querySelector(`#grid-m-${m}`);
+          const firstDay = new Date(2026, m, 1).getDay();
+          const totalDays = new Date(2026, m + 1, 0).getDate();
+          for (let p = 0; p < firstDay; p++) {
+            grid.appendChild(
+              Object.assign(document.createElement('div'), {
+                className: 'day-cell empty-cell',
+              })
+            );
+          }
+          for (let d = 1; d <= totalDays; d++) {
+            grid.appendChild(
+              Object.assign(document.createElement('div'), {
+                className: 'day-cell',
+                id: `day-${dayIdx++}`,
+              })
+            );
+          }
+          container.appendChild(block);
+        }
+        updateTodayMarker(true);
+      }
+      function rebuildUI() {
+        spunDays = new Set(fullSpinLog.map((l) => l.dayIdx));
+        document.getElementById('total-year-a').innerText =
+          yearlyStats.p1.toLocaleString();
+        document.getElementById('total-year-b').innerText =
+          yearlyStats.p2.toLocaleString();
+        document.getElementById('total-year-all').innerText =
+          yearlyStats.total.toLocaleString();
+        for (let m = 0; m < 12; m++) {
+          const d = historyData[m];
+          if (document.getElementById(`sum-m-${m}`))
+            document.getElementById(`sum-m-${m}`).innerText =
+              d.total.toLocaleString();
+          if (document.getElementById(`ap-m-${m}`))
+            document.getElementById(`ap-m-${m}`).innerText =
+              d.p1.toLocaleString();
+          if (document.getElementById(`bp-m-${m}`))
+            document.getElementById(`bp-m-${m}`).innerText =
+              d.p2.toLocaleString();
+        }
+        document.getElementById('history-list').innerHTML = '';
+        fullSpinLog.forEach((log) =>
+          renderSpinToUI(
+            log.dayIdx,
+            log.m,
+            log.player,
+            log.score,
+            log.color,
+            true
+          )
+        );
+        updateTodayMarker(true);
+        updateUI();
+        updateMissedDays();
+      }
+
+      function updateTodayMarker(init = false) {
+        const currentMonth = simDate.getMonth();
+        const dayOfYear =
+          Math.floor((simDate - new Date(2026, 0, 1)) / 86400000) + 1;
+        for (let i = 0; i < 12; i++) {
+          const section = document.getElementById(`month-section-${i}`);
+          if (i <= currentMonth) section.classList.add('is-visible');
+          else section.classList.remove('is-visible');
+        }
+        document
+          .querySelectorAll('.day-cell')
+          .forEach((c) => c.classList.remove('cell-today'));
+        const todayCell = document.getElementById(`day-${dayOfYear}`);
+        if (todayCell) {
+          todayCell.classList.add('cell-today');
+          const section = document.getElementById(
+            `month-section-${currentMonth}`
+          );
+          section.classList.add('month-active');
+          if (!init) section.classList.remove('is-collapsed');
+        }
+        document.getElementById('current-date-ui').innerText =
+          simDate.toLocaleDateString('vi-VN');
+      }
+
+      function getCustomColor(n) {
+        const hue = 120 - (n - 1) * (120 / 364);
+        return `hsl(${hue}, 80%, 50%)`;
+      }
+      function toggleTestControls() {
+        const c = document.getElementById('test-controls-container');
+        c.style.display = c.style.display === 'none' ? 'flex' : 'none';
+      }
+      function toggleSection(id) {
+        document.getElementById(id).classList.toggle('is-collapsed');
+      }
+      function nextDay() {
+        simDate.setDate(simDate.getDate() + 1);
+        updateTodayMarker();
+        updateUI();
+        updateMissedDays();
+      }
+      function nextMonthTest() {
+        simDate = new Date(simDate.getFullYear(), simDate.getMonth() + 1, 1);
+        updateTodayMarker(true);
+        updateUI();
+        updateMissedDays();
+      }
+      function applyMassAction(t) {
+        for (let i = 0; i < 12; i++) {
+          const el = document.getElementById(`month-section-${i}`);
+          if (!el) continue;
+          if (t === 'collapse') el.classList.add('is-collapsed');
+          if (t === 'expand') el.classList.remove('is-collapsed');
+        }
+      }
+      function drawWheel() {
+        const canvas = document.getElementById('wheelCanvas');
+        const ctxW = canvas.getContext('2d');
+        const centerX = 150;
+        const centerY = 150;
+        const radius = 148;
+        const step = (Math.PI * 2) / 365;
+
+        for (let i = 0; i < 365; i++) {
+          ctxW.beginPath();
+          ctxW.moveTo(centerX, centerY);
+          ctxW.arc(centerX, centerY, radius, i * step, (i + 1) * step);
+          ctxW.fillStyle = getCustomColor(i + 1);
+          ctxW.fill();
+
+          // Cứ mỗi mốc 60 hoặc 61 số (để chia đều 6 vùng), vẽ một đường ranh giới rõ ràng
+          if (i % 61 === 0 && i !== 0) {
+            ctxW.beginPath();
+            ctxW.moveTo(centerX, centerY);
+            ctxW.lineTo(
+              centerX + Math.cos(i * step) * radius,
+              centerY + Math.sin(i * step) * radius
+            );
+            ctxW.strokeStyle = 'rgba(255, 255, 255, 0.3)'; // Đường kẻ trắng mờ phân vùng
+            ctxW.lineWidth = 2;
+            ctxW.stroke();
+          }
+        }
+
+        // Vẽ tâm vòng quay (che bớt điểm tụ của các nan quạt)
+        ctxW.beginPath();
+        ctxW.arc(centerX, centerY, 35, 0, Math.PI * 2);
+        ctxW.fillStyle = '#0f172a'; // Tiệp màu nền
+        ctxW.fill();
+        ctxW.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctxW.stroke();
+      }
+
+      function getCustomColor(n) {
+        // Xác định 6 mảng màu mốc (H - Hue, S - Saturation, L - Lightness)
+        // Xanh lá -> Xanh chuối -> Vàng -> Cam -> Đỏ -> Đỏ đô
+        const zones = [
+          { start: 140, end: 160 }, // Vùng 1: Xanh lá đậm (1-60)
+          { start: 80, end: 100 }, // Vùng 2: Xanh chuối (61-120)
+          { start: 45, end: 55 }, // Vùng 3: Vàng (121-180)
+          { start: 25, end: 35 }, // Vùng 4: Cam (181-240)
+          { start: 10, end: 20 }, // Vùng 5: Đỏ (241-300)
+          { start: 0, end: 5 }, // Vùng 6: Đỏ đô (301-365)
+        ];
+
+        const zoneIdx = Math.min(Math.floor((n - 1) / 60.8), 5); // Chia 365 cho 6 vùng
+        const zone = zones[zoneIdx];
+
+        // Tính toán vị trí tương đối của n trong vùng (0 đến 1)
+        const progressInZone = ((n - 1) % 61) / 61;
+
+        // Tạo sự chuyển sắc nhẹ trong Hue
+        const h = zone.start + (zone.end - zone.start) * progressInZone;
+
+        // Trả về màu dạng HSL
+        return `hsl(${h}, 85%, 50%)`;
+      }
+
+      // Khởi tạo
+      spinBtn.addEventListener('click', spin);
+      createVerticalGraph();
+      drawWheel();
+      initChart();
+      setRandomQuote();
+      loadFromCloud();
     </script>
-</body>
+  </body>
 </html>
