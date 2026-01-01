@@ -293,6 +293,7 @@
             </div>
             <div class="w-full space-y-3">
               <button
+                id="dev-toggle-btn"
                 onclick="toggleTestControls()"
                 class="w-full py-1 text-[7px] font-black tracking-widest text-slate-500 hover:text-indigo-400 transition-colors uppercase"
               >
@@ -336,22 +337,6 @@
                   </button>
                 </div>
                 <div class="flex flex-col gap-2">
-                  <div class="grid grid-cols-2 gap-2">
-                    <input
-                      type="date"
-                      id="backfill-date"
-                      min="2026-01-01"
-                      max="2026-12-31"
-                      class="bg-white/5 text-[9px] px-3 py-2 rounded-xl border border-white/10 text-slate-300"
-                      onchange="setRandomQuote()"
-                    />
-                    <button
-                      onclick="spinBackfill()"
-                      class="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 py-2 rounded-xl font-bold uppercase text-[8px] border border-indigo-500/20"
-                    >
-                      Quay bù
-                    </button>
-                  </div>
                   <div
                     id="missed-days"
                     class="text-[8px] text-slate-500 text-center"
@@ -432,12 +417,12 @@
             >
               Thu gọn
             </button>
-            <button
+            <!-- <button
               onclick="applyMassAction('summary')"
               class="text-[8px] font-bold uppercase text-emerald-500 hover:text-emerald-400"
             >
               Tổng quan
-            </button>
+            </button> -->
             <button
               onclick="applyMassAction('expand')"
               class="text-[8px] font-bold uppercase text-indigo-500 hover:text-indigo-400"
@@ -461,7 +446,7 @@
     <script>
       const GOOGLE_SCRIPT_URL =
         'https://script.google.com/macros/s/AKfycby4JDf4ADd6YX3mzIKL0JfiAEqPyR9xdphIf9GgCusqjWEJD0cknzGZSdT29EU6B78DYw/exec';
-      const testMode = true;
+      const testMode = false;
       let playerNames = { p1: 'Người chơi A', p2: 'Người chơi B' };
       let swapStatus = Array.from({ length: 12 }, () => ({
         p1: false,
@@ -770,10 +755,18 @@
         const d = new Date(base.getTime() + (idx - 1) * 86400000);
         return d.getMonth();
       }
+      function computeSpinCredits() {
+        const base = new Date(2026, 0, 1);
+        const dayIdxNow = Math.floor((simDate - base) / 86400000) + 1;
+        const performed = fullSpinLog.filter(
+          (l) => l.dayIdx <= dayIdxNow
+        ).length;
+        return Math.max(0, dayIdxNow - performed);
+      }
       function updateMissedDays() {
         const el = document.getElementById('missed-days');
         if (!el) return;
-        el.innerText = `Ngày chưa quay: ${365 - spunDays.size}`;
+        el.innerText = `Lượt tích lũy còn lại: ${computeSpinCredits()}`;
       }
       const QUOTES = [
         'Một xu tiết kiệm là một xu kiếm được. - Benjamin Franklin',
@@ -886,6 +879,11 @@
 
       function getRandomQuotes() {
         return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      }
+
+      function initDevButton() {
+        const btn = document.getElementById('dev-toggle-btn');
+        if (btn) btn.style.display = testMode ? '' : 'none';
       }
 
       function showLoading(show) {
@@ -1083,7 +1081,15 @@
         saveData();
         syncToCloud();
       }
-      function renderSpinToUI(dayIdx, m, player, score, color, isNew = true) {
+      function renderSpinToUI(
+        dayIdx,
+        m,
+        player,
+        score,
+        color,
+        isNew = true,
+        recordedAtISO = null
+      ) {
         const cell = document.getElementById(`day-${dayIdx}`);
         if (cell) {
           const s = document.createElement('div');
@@ -1106,7 +1112,14 @@
           const d = new Date(base.getTime() + (dayIdx - 1) * 86400000);
           const mm = d.getMonth() + 1;
           const dd = d.getDate();
-          hItem.innerHTML = `<span>${dd}/${mm}</span> <span>${pLabel}</span> <b>+${score}</b>`;
+          let rd = dd,
+            rm = mm;
+          if (recordedAtISO) {
+            const r = new Date(recordedAtISO);
+            rd = r.getDate();
+            rm = r.getMonth() + 1;
+          }
+          hItem.innerHTML = `<span>Q: ${dd}/${mm} • G: ${rd}/${rm}</span> <span>${pLabel}</span> <b>+${score}</b>`;
           hList.prepend(hItem);
         }
       }
@@ -1199,13 +1212,13 @@
 
         const dayIdxNow =
           Math.floor((simDate - new Date(2026, 0, 1)) / 86400000) + 1;
-        if (spunDays.has(dayIdxNow)) {
+        const credits = computeSpinCredits();
+        if (credits <= 0) {
           isSpinning = false;
           spinBtn.disabled = false;
           const quoteArea = document.getElementById('quote-area');
           if (quoteArea) {
-            quoteArea.innerText =
-              'Ngày này đã quay rồi. Chuyển sang ngày mới để tiếp tục.';
+            quoteArea.innerText = 'Hết lượt tích lũy. Thử quay vào ngày sau.';
           }
           return;
         }
@@ -1237,8 +1250,13 @@
             resultBox.style.boxShadow = `0 0 40px ${color}`; // Đổ bóng theo màu vùng vừa quay trúng
             resultBox.style.border = `3px solid ${color}`;
           }
-          const m = simDate.getMonth();
-          const dayIdx = dayIdxNow;
+          const dayIdx = (() => {
+            for (let i = 1; i <= dayIdxNow; i++) {
+              if (!spunDays.has(i)) return i;
+            }
+            return dayIdxNow;
+          })();
+          const m = monthFromDayIdx(dayIdx);
 
           // 4. Hiển thị con số may mắn ngay giữa vòng quay
           if (display) {
@@ -1259,12 +1277,21 @@
             player: currentPlayer,
             score: luckyNum,
             color,
+            recordedAt: simDate.toISOString(),
           });
           usedNumbers.add(luckyNum);
           spunDays.add(dayIdx);
 
           // 7. Cập nhật Giao diện
-          renderSpinToUI(dayIdx, m, currentPlayer, luckyNum, color, true);
+          renderSpinToUI(
+            dayIdx,
+            m,
+            currentPlayer,
+            luckyNum,
+            color,
+            true,
+            simDate.toISOString()
+          );
           rebuildUI();
           updateChart();
 
@@ -1313,73 +1340,6 @@
             if (display) display.classList.replace('scale-100', 'scale-0');
           }, 4000);
         }, 4000); // Khớp với thời gian transition của CSS vòng quay
-      }
-      function spinBackfill() {
-        const input = document.getElementById('backfill-date');
-        if (!input || !input.value) return;
-        const dayIdx = dayIdxFromDateStr(input.value);
-        if (dayIdx < 1 || dayIdx > 365) return;
-        if (spunDays.has(dayIdx)) {
-          const quoteArea = document.getElementById('quote-area');
-          if (quoteArea)
-            quoteArea.innerText = 'Ngày này đã quay rồi, chọn ngày khác.';
-          return;
-        }
-        if (isSpinning) return;
-        const display = document.getElementById('lucky-number-display');
-        if (display) display.classList.replace('scale-100', 'scale-0');
-        isSpinning = true;
-        spinBtn.disabled = true;
-        const avail = [];
-        for (let i = 1; i <= 365; i++) if (!usedNumbers.has(i)) avail.push(i);
-        if (avail.length === 0) {
-          isSpinning = false;
-          spinBtn.disabled = false;
-          return;
-        }
-        const luckyNum = avail[Math.floor(Math.random() * avail.length)];
-        const targetAngle = (360 - (luckyNum - 1) * (360 / 365) + 270) % 360;
-        currentRotation += 360 * 4 + targetAngle - (currentRotation % 360);
-        document.getElementById(
-          'wheelCanvas'
-        ).style.transform = `rotate(${currentRotation}deg)`;
-        setTimeout(() => {
-          isSpinning = false;
-          spinBtn.disabled = false;
-          const resultBox = document.getElementById('lucky-number-display');
-          const color = getCustomColor(luckyNum);
-          if (resultBox) {
-            resultBox.style.boxShadow = `0 0 40px ${color}`;
-            resultBox.style.border = `3px solid ${color}`;
-          }
-          const m = monthFromDayIdx(dayIdx);
-          if (display) {
-            display.classList.replace('scale-0', 'scale-100');
-            animateNumber(luckyNum, 1000);
-          }
-          historyData[m].total += luckyNum;
-          historyData[m][currentPlayer] += luckyNum;
-          yearlyStats.total += luckyNum;
-          yearlyStats[currentPlayer] += luckyNum;
-          fullSpinLog.push({
-            dayIdx,
-            m,
-            player: currentPlayer,
-            score: luckyNum,
-            color,
-          });
-          usedNumbers.add(luckyNum);
-          spunDays.add(dayIdx);
-          renderSpinToUI(dayIdx, m, currentPlayer, luckyNum, color, true);
-          rebuildUI();
-          updateChart();
-          currentPlayer = currentPlayer === 'p1' ? 'p2' : 'p1';
-          syncToCloud();
-          updateUI();
-          setTimeout(() => {
-            if (display) display.classList.replace('scale-100', 'scale-0');
-          }, 4000);
-        }, 4000);
       }
       function createVerticalGraph() {
         const container = document.getElementById('vertical-graph-container');
@@ -1469,7 +1429,8 @@
             log.player,
             log.score,
             log.color,
-            true
+            true,
+            log.recordedAt || null
           )
         );
         updateTodayMarker(true);
@@ -1602,6 +1563,7 @@
       drawWheel();
       initChart();
       setRandomQuote();
+      initDevButton();
       loadFromCloud();
     </script>
   </body>
